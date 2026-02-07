@@ -11,6 +11,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblyContaining<ICitytripRepository>());
 builder.Services.AddSingleton<ICitytripRepository, InMemoryCitytripRepository>();
+builder.Services.AddSingleton<ICurrentUserService, InMemoryCurrentUserService>();
 builder.Services.AddScoped<IUserInteractionStore, InMemoryUserInteractionStore>();
 
 var app = builder.Build();

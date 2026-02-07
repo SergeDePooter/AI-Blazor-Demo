@@ -2,8 +2,10 @@ namespace CitytripPlanner.Features.Citytrips.ListCitytrips;
 
 public record CitytripCard(
     int Id,
-    string CityName,
+    string Title,
+    string Destination,
     string ImageUrl,
-    int DurationInDays,
+    DateOnly StartDate,
+    DateOnly EndDate,
     bool IsLiked,
     bool IsEnlisted);

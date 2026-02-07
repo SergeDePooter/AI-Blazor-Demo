@@ -1,0 +1,163 @@
+@using CitytripPlanner.Features.Citytrips.Domain
+@using CitytripPlanner.Features.Citytrips.GetMyTrips
+@using CitytripPlanner.Features.Citytrips.CreateTrip
+@using CitytripPlanner.Features.Citytrips.UpdateTrip
+@using MediatR
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+
+<div class="modal-backdrop" @onclick="OnCancel">
+    <div class="modal-content" @onclick:stopPropagation="true">
+        <h3>@(IsEditMode ? "Edit Citytrip" : "Create Citytrip")</h3>
+
+        <div class="form-group">
+            <label for="title">Title *</label>
+            <input id="title" type="text" @bind="_title" maxlength="100" placeholder="Trip title" />
+        </div>
+
+        <div class="form-group">
+            <label for="destination">Destination *</label>
+            <input id="destination" type="text" @bind="_destination" maxlength="100" placeholder="City or location" />
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="startDate">Start Date *</label>
+                <input id="startDate" type="date" @bind="_startDate" />
+            </div>
+            <div class="form-group">
+                <label for="endDate">End Date *</label>
+                <input id="endDate" type="date" @bind="_endDate" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" @bind="_description" rows="3" placeholder="Optional description"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="maxParticipants">Max Participants</label>
+            <input id="maxParticipants" type="number" @bind="_maxParticipants" min="1" placeholder="No limit" />
+        </div>
+
+        @if (_errors.Count > 0)
+        {
+            <div class="validation-errors">
+                @foreach (var error in _errors)
+                {
+                    <p>@error</p>
+                }
+            </div>
+        }
+
+        <div class="modal-actions">
+            <button class="btn-cancel" @onclick="OnCancel" disabled="@_isProcessing">Cancel</button>
+            <button class="btn-save" @onclick="HandleSave" disabled="@_isProcessing">
+                @(_isProcessing ? "Saving..." : "Save")
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public MyTripItem? Trip { get; set; }
+
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private bool IsEditMode => Trip is not null;
+
+    private string _title = "";
+    private string _destination = "";
+    private DateTime _startDate = DateTime.Today;
+    private DateTime _endDate = DateTime.Today.AddDays(3);
+    private string? _description;
+    private int? _maxParticipants;
+    private List<string> _errors = new();
+    private bool _isProcessing;
+
+    protected override void OnParametersSet()
+    {
+        if (Trip is not null)
+        {
+            _title = Trip.Title;
+            _destination = Trip.Destination;
+            _startDate = Trip.StartDate.ToDateTime(TimeOnly.MinValue);
+            _endDate = Trip.EndDate.ToDateTime(TimeOnly.MinValue);
+            _description = Trip.Description;
+            _maxParticipants = Trip.MaxParticipants;
+        }
+    }
+
+    private async Task HandleSave()
+    {
+        if (_isProcessing) return;
+        _isProcessing = true;
+        _errors.Clear();
+
+        try
+        {
+            var startDate = DateOnly.FromDateTime(_startDate);
+            var endDate = DateOnly.FromDateTime(_endDate);
+
+            if (IsEditMode)
+            {
+                var command = new UpdateTripCommand(
+                    Trip!.Id,
+                    _title,
+                    _destination,
+                    startDate,
+                    endDate,
+                    CurrentUser.UserId,
+                    _description,
+                    _maxParticipants);
+
+                var validator = new UpdateTripValidator();
+                var validationErrors = validator.Validate(command);
+                if (validationErrors.Count > 0)
+                {
+                    _errors = validationErrors;
+                    return;
+                }
+
+                await Mediator.Send(command);
+            }
+            else
+            {
+                var command = new CreateTripCommand(
+                    _title,
+                    _destination,
+                    startDate,
+                    endDate,
+                    CurrentUser.UserId,
+                    _description,
+                    _maxParticipants);
+
+                var validator = new CreateTripValidator();
+                var validationErrors = validator.Validate(command);
+                if (validationErrors.Count > 0)
+                {
+                    _errors = validationErrors;
+                    return;
+                }
+
+                await Mediator.Send(command);
+            }
+
+            await OnSave.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            _errors.Add(ex.Message);
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+}

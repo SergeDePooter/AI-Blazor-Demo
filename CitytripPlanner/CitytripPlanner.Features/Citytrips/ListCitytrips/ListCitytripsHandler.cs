@@ -19,9 +19,11 @@ public class ListCitytripsHandler(
             interactions.TryGetValue(t.Id, out var interaction);
             return new CitytripCard(
                 t.Id,
-                t.CityName,
+                t.Title,
+                t.Destination,
                 t.ImageUrl,
-                t.DurationInDays,
+                t.StartDate,
+                t.EndDate,
                 interaction?.IsLiked ?? false,
                 interaction?.IsEnlisted ?? false);
         }).ToList();

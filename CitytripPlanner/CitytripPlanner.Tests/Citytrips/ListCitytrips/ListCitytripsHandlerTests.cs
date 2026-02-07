@@ -45,5 +45,9 @@ public class ListCitytripsHandlerTests
     {
         public Task<List<Citytrip>> GetAllAsync() => Task.FromResult(new List<Citytrip>());
         public Task<Citytrip?> GetByIdAsync(int id) => Task.FromResult<Citytrip?>(null);
+        public Task<Citytrip> AddAsync(Citytrip trip) => Task.FromResult(trip);
+        public Task<Citytrip> UpdateAsync(Citytrip trip) => Task.FromResult(trip);
+        public Task<bool> DeleteAsync(int id) => Task.FromResult(false);
+        public Task<List<Citytrip>> GetByCreatorAsync(string creatorId) => Task.FromResult(new List<Citytrip>());
     }
 }

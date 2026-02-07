@@ -2,7 +2,11 @@ namespace CitytripPlanner.Features.Citytrips.Domain;
 
 public record Citytrip(
     int Id,
-    string CityName,
+    string Title,
+    string Destination,
     string ImageUrl,
-    int DurationInDays,
-    string? Description = null);
+    DateOnly StartDate,
+    DateOnly EndDate,
+    string CreatorId,
+    string? Description = null,
+    int? MaxParticipants = null);

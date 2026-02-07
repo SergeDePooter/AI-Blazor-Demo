@@ -1,0 +1,23 @@
+<div class="modal-backdrop" @onclick="OnCancel">
+    <div class="modal-content" @onclick:stopPropagation="true">
+        <h3>Delete Citytrip</h3>
+        <p>Are you sure you want to delete <strong>@TripTitle</strong>?</p>
+        <p class="warning">This action cannot be undone.</p>
+
+        <div class="modal-actions">
+            <button class="btn-cancel" @onclick="OnCancel">Cancel</button>
+            <button class="btn-confirm-delete" @onclick="OnConfirm">Delete</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string TripTitle { get; set; } = "";
+
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+}

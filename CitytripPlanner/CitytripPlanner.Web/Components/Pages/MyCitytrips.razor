@@ -1,0 +1,226 @@
+@page "/my-citytrips"
+@using CitytripPlanner.Features.Citytrips.Domain
+@using CitytripPlanner.Features.Citytrips.GetMyTrips
+@using CitytripPlanner.Features.Citytrips.GetEnlistedTrips
+@using CitytripPlanner.Features.Citytrips.CreateTrip
+@using CitytripPlanner.Features.Citytrips.UpdateTrip
+@using CitytripPlanner.Features.Citytrips.DeleteTrip
+@using MediatR
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@rendermode InteractiveServer
+
+<PageTitle>My Citytrips</PageTitle>
+
+<div class="my-citytrips-page">
+    <div class="tab-bar">
+        <button class="tab @(_activeSection == ActiveSection.MyTrips ? "active" : "")"
+                @onclick="() => SwitchTab(ActiveSection.MyTrips)">
+            My Citytrips
+        </button>
+        <button class="tab @(_activeSection == ActiveSection.EnlistedTrips ? "active" : "")"
+                @onclick="() => SwitchTab(ActiveSection.EnlistedTrips)">
+            Enlisted Citytrips
+        </button>
+    </div>
+
+    @if (_activeSection == ActiveSection.MyTrips)
+    {
+        <div class="section-header">
+            <h2>My Citytrips</h2>
+            <button class="btn-create" @onclick="OpenCreateModal">+ Create Citytrip</button>
+        </div>
+
+        @if (_myTrips is null)
+        {
+            <p>Loading...</p>
+        }
+        else if (_myTrips.Count == 0)
+        {
+            <div class="empty-state">
+                <p>You haven't created any citytrips yet.</p>
+                <button class="btn-create" @onclick="OpenCreateModal">Create your first citytrip</button>
+            </div>
+        }
+        else
+        {
+            <div class="trip-list">
+                @foreach (var trip in _myTrips)
+                {
+                    <div class="trip-card">
+                        @if (!string.IsNullOrEmpty(trip.ImageUrl))
+                        {
+                            <img src="@trip.ImageUrl" alt="@trip.Title" />
+                        }
+                        <div class="trip-card-body">
+                            <h3>@trip.Title</h3>
+                            <p class="trip-destination">@trip.Destination</p>
+                            <p class="trip-dates">@trip.StartDate.ToString("MMM d") – @trip.EndDate.ToString("MMM d, yyyy")</p>
+                            @if (trip.Description is not null)
+                            {
+                                <p class="trip-description">@trip.Description</p>
+                            }
+                            <div class="trip-meta">
+                                @if (trip.MaxParticipants.HasValue)
+                                {
+                                    <span>@trip.EnlistedCount / @trip.MaxParticipants participants</span>
+                                }
+                                else
+                                {
+                                    <span>@trip.EnlistedCount enlisted</span>
+                                }
+                            </div>
+                            <div class="trip-actions">
+                                <button class="btn-edit" @onclick="() => OpenEditModal(trip)">Edit</button>
+                                <button class="btn-delete" @onclick="() => OpenDeleteModal(trip)">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="section-header">
+            <h2>Enlisted Citytrips</h2>
+        </div>
+
+        @if (_enlistedTrips is null)
+        {
+            <p>Loading...</p>
+        }
+        else if (_enlistedTrips.Count == 0)
+        {
+            <div class="empty-state">
+                <p>You haven't enlisted in any citytrips yet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="trip-list">
+                @foreach (var trip in _enlistedTrips)
+                {
+                    <div class="trip-card enlisted-card">
+                        @if (!string.IsNullOrEmpty(trip.ImageUrl))
+                        {
+                            <img src="@trip.ImageUrl" alt="@trip.Title" />
+                        }
+                        <div class="trip-card-body">
+                            <h3>@trip.Title</h3>
+                            <p class="trip-destination">@trip.Destination</p>
+                            <p class="trip-dates">@trip.StartDate.ToString("MMM d") – @trip.EndDate.ToString("MMM d, yyyy")</p>
+                            @if (trip.Description is not null)
+                            {
+                                <p class="trip-description">@trip.Description</p>
+                            }
+                            <p class="trip-creator">Created by @trip.CreatorName</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@if (_showFormModal)
+{
+    <CitytripPlanner.Web.Components.Shared.TripFormModal
+        Trip="_editingTrip"
+        OnSave="HandleFormSave"
+        OnCancel="CloseFormModal" />
+}
+
+@if (_showDeleteModal)
+{
+    <CitytripPlanner.Web.Components.Shared.DeleteConfirmModal
+        TripTitle="@_deletingTrip!.Title"
+        OnConfirm="HandleDeleteConfirm"
+        OnCancel="CloseDeleteModal" />
+}
+
+@code {
+    private enum ActiveSection { MyTrips, EnlistedTrips }
+
+    private ActiveSection _activeSection = ActiveSection.MyTrips;
+    private List<MyTripItem>? _myTrips;
+    private List<EnlistedTripItem>? _enlistedTrips;
+
+    private bool _showFormModal;
+    private MyTripItem? _editingTrip;
+
+    private bool _showDeleteModal;
+    private MyTripItem? _deletingTrip;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMyTrips();
+    }
+
+    private async Task SwitchTab(ActiveSection section)
+    {
+        _activeSection = section;
+        if (section == ActiveSection.MyTrips)
+            await LoadMyTrips();
+        else
+            await LoadEnlistedTrips();
+    }
+
+    private async Task LoadMyTrips()
+    {
+        _myTrips = await Mediator.Send(new GetMyTripsQuery(CurrentUser.UserId));
+    }
+
+    private async Task LoadEnlistedTrips()
+    {
+        _enlistedTrips = await Mediator.Send(new GetEnlistedTripsQuery(CurrentUser.UserId));
+    }
+
+    private void OpenCreateModal()
+    {
+        _editingTrip = null;
+        _showFormModal = true;
+    }
+
+    private void OpenEditModal(MyTripItem trip)
+    {
+        _editingTrip = trip;
+        _showFormModal = true;
+    }
+
+    private void CloseFormModal()
+    {
+        _showFormModal = false;
+        _editingTrip = null;
+    }
+
+    private async Task HandleFormSave()
+    {
+        _showFormModal = false;
+        _editingTrip = null;
+        await LoadMyTrips();
+    }
+
+    private void OpenDeleteModal(MyTripItem trip)
+    {
+        _deletingTrip = trip;
+        _showDeleteModal = true;
+    }
+
+    private void CloseDeleteModal()
+    {
+        _showDeleteModal = false;
+        _deletingTrip = null;
+    }
+
+    private async Task HandleDeleteConfirm()
+    {
+        if (_deletingTrip is not null)
+        {
+            await Mediator.Send(new DeleteTripCommand(_deletingTrip.Id, CurrentUser.UserId));
+        }
+        _showDeleteModal = false;
+        _deletingTrip = null;
+        await LoadMyTrips();
+    }
+}

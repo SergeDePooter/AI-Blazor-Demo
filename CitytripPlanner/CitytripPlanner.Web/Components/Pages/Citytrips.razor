@@ -1,0 +1,75 @@
+@page "/"
+@page "/citytrips"
+@using CitytripPlanner.Features.Citytrips.ListCitytrips
+@using CitytripPlanner.Features.Citytrips.ToggleLike
+@using CitytripPlanner.Features.Citytrips.Enlist
+@using CardDto = CitytripPlanner.Features.Citytrips.ListCitytrips.CitytripCard
+@using MediatR
+@inject IMediator Mediator
+@rendermode InteractiveServer
+
+<PageTitle>Citytrips</PageTitle>
+
+@if (_trips is null)
+{
+    <p>Loading citytrips...</p>
+}
+else if (_trips.Count == 0)
+{
+    <div class="empty-state">
+        <p>No citytrips available at the moment. Check back soon!</p>
+    </div>
+}
+else
+{
+    <div class="masonry-grid">
+        @foreach (var trip in _trips)
+        {
+            <CitytripPlanner.Web.Components.Shared.TripCard Trip="trip"
+                                   OnLike="HandleLike"
+                                   OnEnlist="HandleEnlist" />
+        }
+    </div>
+}
+
+@if (_toastMessage is not null)
+{
+    <CitytripPlanner.Web.Components.Shared.Toast Message="@_toastMessage" OnDismissed="DismissToast" />
+}
+
+@code {
+    private List<CardDto>? _trips;
+    private string? _toastMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _trips = await Mediator.Send(new ListCitytripsQuery());
+    }
+
+    private async Task HandleLike(int tripId)
+    {
+        var newState = await Mediator.Send(new ToggleLikeCommand(tripId));
+        _trips = await Mediator.Send(new ListCitytripsQuery());
+    }
+
+    private async Task HandleEnlist(int tripId)
+    {
+        var result = await Mediator.Send(new EnlistCommand(tripId));
+        _trips = await Mediator.Send(new ListCitytripsQuery());
+        _toastMessage = "You have been enlisted for this citytrip!";
+        StateHasChanged();
+        _ = DismissToastAfterDelay();
+    }
+
+    private async Task DismissToastAfterDelay()
+    {
+        await Task.Delay(3000);
+        _toastMessage = null;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void DismissToast()
+    {
+        _toastMessage = null;
+    }
+}

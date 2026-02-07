@@ -1,1 +1,6 @@
-<Solution />
+<Solution>
+  <Project Path="CitytripPlanner.Features/CitytripPlanner.Features.csproj" />
+  <Project Path="CitytripPlanner.Infrastructure/CitytripPlanner.Infrastructure.csproj" />
+  <Project Path="CitytripPlanner.Tests/CitytripPlanner.Tests.csproj" />
+  <Project Path="CitytripPlanner.Web/CitytripPlanner.Web.csproj" />
+</Solution>

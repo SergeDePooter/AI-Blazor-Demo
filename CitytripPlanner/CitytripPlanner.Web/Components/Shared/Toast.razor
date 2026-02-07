@@ -1,0 +1,12 @@
+<div class="toast-notification">
+    <span>@Message</span>
+    <button class="toast-dismiss" @onclick="OnDismissed">&times;</button>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Message { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnDismissed { get; set; }
+}

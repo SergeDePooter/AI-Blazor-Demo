@@ -1,3 +1,5 @@
+using CitytripPlanner.Features.Citytrips.Domain;
+using CitytripPlanner.Infrastructure.Citytrips;
 using CitytripPlanner.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssemblyContaining<ICitytripRepository>());
+builder.Services.AddSingleton<ICitytripRepository, InMemoryCitytripRepository>();
+builder.Services.AddScoped<IUserInteractionStore, InMemoryUserInteractionStore>();
 
 var app = builder.Build();
 

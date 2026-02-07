@@ -1,0 +1,12 @@
+.masonry-grid {
+    columns: 3 280px;
+    column-gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #666;
+    font-size: 1.1rem;
+}

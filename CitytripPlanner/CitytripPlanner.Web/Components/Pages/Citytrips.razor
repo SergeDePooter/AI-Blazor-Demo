@@ -14,22 +14,61 @@
 {
     <p>Loading citytrips...</p>
 }
-else if (_trips.Count == 0)
-{
-    <div class="empty-state">
-        <p>No citytrips available at the moment. Check back soon!</p>
-    </div>
-}
 else
 {
-    <div class="masonry-grid">
-        @foreach (var trip in _trips)
+    <div class="filter-area">
+        <input type="text"
+               class="filter-text"
+               placeholder="Search by title or destination..."
+               value="@_searchText"
+               @oninput="OnSearchTextChanged" />
+
+        <div class="filter-dates">
+            <label>
+                From
+                <input type="date"
+                       value="@_fromDate?.ToString("yyyy-MM-dd")"
+                       max="@_toDate?.ToString("yyyy-MM-dd")"
+                       @onchange="OnFromDateChanged" />
+            </label>
+            <label>
+                To
+                <input type="date"
+                       value="@_toDate?.ToString("yyyy-MM-dd")"
+                       min="@_fromDate?.ToString("yyyy-MM-dd")"
+                       @onchange="OnToDateChanged" />
+            </label>
+        </div>
+
+        @if (HasActiveFilters)
         {
-            <CitytripPlanner.Web.Components.Shared.TripCard Trip="trip"
-                                   OnLike="HandleLike"
-                                   OnEnlist="HandleEnlist" />
+            <button class="btn-clear-filters" @onclick="ClearAllFilters">Clear all filters</button>
         }
     </div>
+
+    @if (_filteredTrips!.Count == 0 && _trips.Count > 0)
+    {
+        <div class="empty-state">
+            <p>No citytrips match your filters. Try adjusting or clearing your filters.</p>
+        </div>
+    }
+    else if (_filteredTrips.Count == 0)
+    {
+        <div class="empty-state">
+            <p>No citytrips available at the moment. Check back soon!</p>
+        </div>
+    }
+    else
+    {
+        <div class="masonry-grid">
+            @foreach (var trip in _filteredTrips)
+            {
+                <CitytripPlanner.Web.Components.Shared.TripCard Trip="trip"
+                                       OnLike="HandleLike"
+                                       OnEnlist="HandleEnlist" />
+            }
+        </div>
+    }
 }
 
 @if (_toastMessage is not null)
@@ -39,23 +78,83 @@ else
 
 @code {
     private List<CardDto>? _trips;
+    private List<CardDto>? _filteredTrips;
     private string? _toastMessage;
+
+    private string? _searchText;
+    private DateOnly? _fromDate;
+    private DateOnly? _toDate;
+    private CancellationTokenSource? _debounceCts;
+
+    private bool HasActiveFilters =>
+        !string.IsNullOrWhiteSpace(_searchText) || _fromDate.HasValue || _toDate.HasValue;
 
     protected override async Task OnInitializedAsync()
     {
         _trips = await Mediator.Send(new ListCitytripsQuery());
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        if (_trips is null) return;
+        var criteria = new CitytripFilterCriteria(_searchText, _fromDate, _toDate);
+        _filteredTrips = CitytripFilter.Apply(_trips, criteria);
+    }
+
+    private async Task OnSearchTextChanged(ChangeEventArgs e)
+    {
+        _searchText = e.Value?.ToString();
+
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+        var token = _debounceCts.Token;
+
+        try
+        {
+            await Task.Delay(300, token);
+            ApplyFilters();
+            StateHasChanged();
+        }
+        catch (TaskCanceledException)
+        {
+            // Debounce cancelled by newer input — expected
+        }
+    }
+
+    private void OnFromDateChanged(ChangeEventArgs e)
+    {
+        _fromDate = DateOnly.TryParse(e.Value?.ToString(), out var d) ? d : null;
+        ApplyFilters();
+    }
+
+    private void OnToDateChanged(ChangeEventArgs e)
+    {
+        _toDate = DateOnly.TryParse(e.Value?.ToString(), out var d) ? d : null;
+        ApplyFilters();
+    }
+
+    private void ClearAllFilters()
+    {
+        _searchText = null;
+        _fromDate = null;
+        _toDate = null;
+        _debounceCts?.Cancel();
+        ApplyFilters();
     }
 
     private async Task HandleLike(int tripId)
     {
         var newState = await Mediator.Send(new ToggleLikeCommand(tripId));
         _trips = await Mediator.Send(new ListCitytripsQuery());
+        ApplyFilters();
     }
 
     private async Task HandleEnlist(int tripId)
     {
         var result = await Mediator.Send(new EnlistCommand(tripId));
         _trips = await Mediator.Send(new ListCitytripsQuery());
+        ApplyFilters();
         _toastMessage = "You have been enlisted for this citytrip!";
         StateHasChanged();
         _ = DismissToastAfterDelay();

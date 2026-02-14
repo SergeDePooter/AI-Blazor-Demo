@@ -12,7 +12,9 @@
       "Bash(dotnet add:*)",
       "Bash(dotnet test:*)",
       "Bash(dotnet build:*)",
-      "Bash(dotnet clean:*)"
+      "Bash(dotnet clean:*)",
+      "Bash(ls:*)",
+      "Bash(git -C C:/Projects/demo-speckit-ai rev-parse:*)"
     ]
   }
 }

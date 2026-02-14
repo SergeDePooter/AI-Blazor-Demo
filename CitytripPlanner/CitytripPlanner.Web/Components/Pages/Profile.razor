@@ -1,0 +1,227 @@
+@page "/profile"
+@using CitytripPlanner.Features.UserProfiles.GetUserProfile
+@using CitytripPlanner.Features.UserProfiles.UpdateUserProfile
+@using CitytripPlanner.Features.UserProfiles.Domain
+@using FluentValidation
+@using MediatR
+@inject IMediator Mediator
+@rendermode InteractiveServer
+
+<PageTitle>My Profile</PageTitle>
+
+<div class="profile-container">
+    <h1>My Profile</h1>
+
+    @if (_successMessage != null)
+    {
+        <div class="message success">@_successMessage</div>
+    }
+
+    @if (_errorMessage != null)
+    {
+        <div class="message error">@_errorMessage</div>
+    }
+
+    @if (_isLoading)
+    {
+        <p>Loading profile...</p>
+    }
+    else
+    {
+        <div class="profile-content">
+            @if (!_isEditing)
+            {
+                <!-- View Mode -->
+                @if (_profile == null)
+                {
+                    <div class="profile-empty">
+                        <p>No profile data found. Your profile is empty.</p>
+                        <p class="hint">Click "Edit" to add your information.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="profile-view">
+                        <div class="profile-field">
+                            <label>Name:</label>
+                            <div class="value">@_profile.Name</div>
+                        </div>
+
+                        <div class="profile-field">
+                            <label>First Name:</label>
+                            <div class="value">@_profile.Firstname</div>
+                        </div>
+
+                        <div class="profile-field">
+                            <label>Gender:</label>
+                            <div class="value">@(_profile.Gender ?? "(Not specified)")</div>
+                        </div>
+
+                        <div class="profile-field">
+                            <label>Country:</label>
+                            <div class="value">@(_profile.Country ?? "(Not specified)")</div>
+                        </div>
+                    </div>
+                }
+
+                <button class="btn-primary" @onclick="EnableEdit">Edit</button>
+            }
+            else
+            {
+                <!-- Edit Mode -->
+                <div class="profile-edit">
+                    <div class="form-field">
+                        <label for="name">Name: <span class="required">*</span></label>
+                        <input id="name"
+                               type="text"
+                               @bind="_editName"
+                               maxlength="100"
+                               placeholder="Enter your last name" />
+                        @if (_validationErrors.ContainsKey("Name"))
+                        {
+                            <div class="validation-error">@_validationErrors["Name"]</div>
+                        }
+                    </div>
+
+                    <div class="form-field">
+                        <label for="firstname">First Name: <span class="required">*</span></label>
+                        <input id="firstname"
+                               type="text"
+                               @bind="_editFirstname"
+                               maxlength="100"
+                               placeholder="Enter your first name" />
+                        @if (_validationErrors.ContainsKey("Firstname"))
+                        {
+                            <div class="validation-error">@_validationErrors["Firstname"]</div>
+                        }
+                    </div>
+
+                    <div class="form-field">
+                        <label for="gender">Gender:</label>
+                        <select id="gender" @bind="_editGender">
+                            <option value="">-- Select Gender --</option>
+                            @foreach (var option in GenderOptions.All)
+                            {
+                                <option value="@option">@option</option>
+                            }
+                        </select>
+                        @if (_validationErrors.ContainsKey("Gender"))
+                        {
+                            <div class="validation-error">@_validationErrors["Gender"]</div>
+                        }
+                    </div>
+
+                    <div class="form-field">
+                        <label for="country">Country:</label>
+                        <select id="country" @bind="_editCountry">
+                            <option value="">-- Select Country --</option>
+                            @foreach (var c in Countries.All)
+                            {
+                                <option value="@c">@c</option>
+                            }
+                        </select>
+                        @if (_validationErrors.ContainsKey("Country"))
+                        {
+                            <div class="validation-error">@_validationErrors["Country"]</div>
+                        }
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-primary" @onclick="SaveProfile" disabled="@_isSaving">
+                            @(_isSaving ? "Saving..." : "Save")
+                        </button>
+                        <button class="btn-secondary" @onclick="CancelEdit" disabled="@_isSaving">Cancel</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private UserProfileResponse? _profile;
+    private bool _isLoading = true;
+    private bool _isEditing = false;
+    private bool _isSaving = false;
+
+    // Edit state
+    private string _editName = string.Empty;
+    private string _editFirstname = string.Empty;
+    private string? _editGender;
+    private string? _editCountry;
+
+    // Messages
+    private string? _successMessage;
+    private string? _errorMessage;
+    private Dictionary<string, string> _validationErrors = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _profile = await Mediator.Send(new GetUserProfileQuery());
+        _isLoading = false;
+    }
+
+    private void EnableEdit()
+    {
+        _isEditing = true;
+        _successMessage = null;
+        _errorMessage = null;
+        _validationErrors.Clear();
+
+        // Initialize edit fields with current values or empty
+        _editName = _profile?.Name ?? string.Empty;
+        _editFirstname = _profile?.Firstname ?? string.Empty;
+        _editGender = _profile?.Gender;
+        _editCountry = _profile?.Country;
+    }
+
+    private async Task SaveProfile()
+    {
+        _isSaving = true;
+        _successMessage = null;
+        _errorMessage = null;
+        _validationErrors.Clear();
+
+        try
+        {
+            var command = new UpdateUserProfileCommand(
+                Name: _editName,
+                Firstname: _editFirstname,
+                Gender: _editGender,
+                Country: _editCountry
+            );
+
+            await Mediator.Send(command);
+
+            // Reload profile to show updated data
+            _profile = await Mediator.Send(new GetUserProfileQuery());
+
+            _isEditing = false;
+            _successMessage = "Profile updated successfully!";
+        }
+        catch (ValidationException ex)
+        {
+            _errorMessage = "Please correct the errors below:";
+            foreach (var error in ex.Errors)
+            {
+                _validationErrors[error.PropertyName] = error.ErrorMessage;
+            }
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Failed to save profile. Please try again.";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private void CancelEdit()
+    {
+        _isEditing = false;
+        _successMessage = null;
+        _errorMessage = null;
+        _validationErrors.Clear();
+    }
+}

@@ -1,5 +1,7 @@
 using CitytripPlanner.Features.Citytrips.Domain;
+using CitytripPlanner.Features.UserProfiles.Domain;
 using CitytripPlanner.Infrastructure.Citytrips;
+using CitytripPlanner.Infrastructure.UserProfiles;
 using CitytripPlanner.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,8 +11,12 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssemblyContaining<ICitytripRepository>());
+{
+    cfg.RegisterServicesFromAssemblyContaining<ICitytripRepository>();
+    cfg.RegisterServicesFromAssemblyContaining<IUserProfileRepository>();
+});
 builder.Services.AddSingleton<ICitytripRepository, InMemoryCitytripRepository>();
+builder.Services.AddSingleton<IUserProfileRepository, InMemoryUserProfileRepository>();
 builder.Services.AddSingleton<ICurrentUserService, InMemoryCurrentUserService>();
 builder.Services.AddScoped<IUserInteractionStore, InMemoryUserInteractionStore>();
 

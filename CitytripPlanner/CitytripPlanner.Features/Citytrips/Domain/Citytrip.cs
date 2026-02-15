@@ -9,4 +9,5 @@ public record Citytrip(
     DateOnly EndDate,
     string CreatorId,
     string? Description = null,
-    int? MaxParticipants = null);
+    int? MaxParticipants = null,
+    List<DayPlan>? DayPlans = null);

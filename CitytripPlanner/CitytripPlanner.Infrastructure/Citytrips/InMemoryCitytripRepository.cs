@@ -10,10 +10,85 @@ public class InMemoryCitytripRepository : ICitytripRepository
 
     public InMemoryCitytripRepository()
     {
+        // Sample itinerary for Paris trip
+        var parisItinerary = new List<DayPlan>
+        {
+            new DayPlan(
+                dayNumber: 1,
+                date: new DateOnly(2026, 6, 1),
+                timeframe: "Morning 9:00-12:00",
+                attractions: new List<Attraction>
+                {
+                    new Attraction(
+                        name: "Eiffel Tower",
+                        description: "Iconic iron lattice tower with observation decks offering panoramic city views",
+                        websiteUrl: "https://www.toureiffel.paris/en",
+                        transportationOptions: new List<string>
+                        {
+                            "Metro Line 6 to Bir-Hakeim",
+                            "RER C to Champ de Mars"
+                        }
+                    ),
+                    new Attraction(
+                        name: "Trocadéro Gardens",
+                        description: "Beautiful gardens with stunning Eiffel Tower views",
+                        websiteUrl: null,
+                        transportationOptions: new List<string>
+                        {
+                            "Walking from Eiffel Tower (10 min)"
+                        }
+                    )
+                }
+            ),
+            new DayPlan(
+                dayNumber: 2,
+                date: new DateOnly(2026, 6, 2),
+                timeframe: "Afternoon 14:00-18:00",
+                attractions: new List<Attraction>
+                {
+                    new Attraction(
+                        name: "Louvre Museum",
+                        description: "World's largest art museum, home to the Mona Lisa",
+                        websiteUrl: "https://www.louvre.fr/en",
+                        transportationOptions: new List<string>
+                        {
+                            "Metro Line 1 to Palais Royal - Musée du Louvre"
+                        }
+                    )
+                }
+            ),
+            new DayPlan(
+                dayNumber: 3,
+                date: new DateOnly(2026, 6, 3),
+                timeframe: "All day 10:00-20:00",
+                attractions: new List<Attraction>
+                {
+                    new Attraction(
+                        name: "Notre-Dame Cathedral",
+                        description: "Gothic masterpiece on Île de la Cité (exterior viewing)",
+                        websiteUrl: "https://www.notredamedeparis.fr/en/",
+                        transportationOptions: new List<string>
+                        {
+                            "Metro Line 4 to Cité"
+                        }
+                    ),
+                    new Attraction(
+                        name: "Sainte-Chapelle",
+                        description: "13th-century Gothic chapel with stunning stained glass windows",
+                        websiteUrl: "https://www.sainte-chapelle.fr/en",
+                        transportationOptions: new List<string>
+                        {
+                            "Walking from Notre-Dame (5 min)"
+                        }
+                    )
+                }
+            )
+        };
+
         var seedData = new List<Citytrip>
         {
             new(1, "Paris", "Paris", "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600",
-                new DateOnly(2026, 6, 1), new DateOnly(2026, 6, 5), "seed-user", "The City of Light awaits"),
+                new DateOnly(2026, 6, 1), new DateOnly(2026, 6, 5), "seed-user", "The City of Light awaits", null, parisItinerary),
             new(2, "Barcelona", "Barcelona", "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=600",
                 new DateOnly(2026, 7, 10), new DateOnly(2026, 7, 13), "seed-user", "Gaudi's masterpiece city"),
             new(3, "Rome", "Rome", "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600",
@@ -36,6 +111,9 @@ public class InMemoryCitytripRepository : ICitytripRepository
         => Task.FromResult(_trips.Values.ToList());
 
     public Task<Citytrip?> GetByIdAsync(int id)
+        => Task.FromResult(_trips.GetValueOrDefault(id));
+
+    public Task<Citytrip?> GetByIdWithItineraryAsync(int id)
         => Task.FromResult(_trips.GetValueOrDefault(id));
 
     public Task<Citytrip> AddAsync(Citytrip trip)

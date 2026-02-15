@@ -28,9 +28,9 @@ tests/
 C# / .NET 10: Follow standard conventions
 
 ## Recent Changes
+- 005-citytrip-details: Added C# / .NET 10 + Blazor Server (built-in), MediatR 14.x (existing)
 - 004-user-profile-page: Added C# / .NET 10 + MediatR 14.0.0, Blazor Server (built-in)
 - 003-filter-citytrips: Added C# / .NET 10 + Blazor Server (built-in), MediatR 14.x (existing)
-- 002-manage-citytrips: Added C# / .NET 10 + MediatR 14.0.0, Blazor Server (built-in), bUnit 2.5.3 (testing)
 
 
 <!-- MANUAL ADDITIONS START -->

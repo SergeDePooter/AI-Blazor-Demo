@@ -12,6 +12,11 @@
 
 <PageTitle>My Citytrips</PageTitle>
 
+<div class="page-header">
+    <h1>My Citytrips</h1>
+    <p class="subtitle">Manage and track your travel plans</p>
+</div>
+
 <div class="my-citytrips-page">
     <div class="tab-bar">
         <button class="tab @(_activeSection == ActiveSection.MyTrips ? "active" : "")"
@@ -33,7 +38,10 @@
 
         @if (_myTrips is null)
         {
-            <p>Loading...</p>
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading…</p>
+            </div>
         }
         else if (_myTrips.Count == 0)
         {
@@ -54,8 +62,8 @@
                         }
                         <div class="trip-card-body">
                             <h3>@trip.Title</h3>
-                            <p class="trip-destination">@trip.Destination</p>
-                            <p class="trip-dates">@trip.StartDate.ToString("MMM d") – @trip.EndDate.ToString("MMM d, yyyy")</p>
+                            <p class="trip-destination">📍 @trip.Destination</p>
+                            <p class="trip-dates">📅 @trip.StartDate.ToString("MMM d") – @trip.EndDate.ToString("MMM d, yyyy")</p>
                             @if (trip.Description is not null)
                             {
                                 <p class="trip-description">@trip.Description</p>
@@ -63,11 +71,11 @@
                             <div class="trip-meta">
                                 @if (trip.MaxParticipants.HasValue)
                                 {
-                                    <span>@trip.EnlistedCount / @trip.MaxParticipants participants</span>
+                                    <span>👥 @trip.EnlistedCount / @trip.MaxParticipants participants</span>
                                 }
                                 else
                                 {
-                                    <span>@trip.EnlistedCount enlisted</span>
+                                    <span>👥 @trip.EnlistedCount enlisted</span>
                                 }
                             </div>
                             <div class="trip-actions">
@@ -88,7 +96,10 @@
 
         @if (_enlistedTrips is null)
         {
-            <p>Loading...</p>
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading…</p>
+            </div>
         }
         else if (_enlistedTrips.Count == 0)
         {
@@ -108,8 +119,8 @@
                         }
                         <div class="trip-card-body">
                             <h3>@trip.Title</h3>
-                            <p class="trip-destination">@trip.Destination</p>
-                            <p class="trip-dates">@trip.StartDate.ToString("MMM d") – @trip.EndDate.ToString("MMM d, yyyy")</p>
+                            <p class="trip-destination">📍 @trip.Destination</p>
+                            <p class="trip-dates">📅 @trip.StartDate.ToString("MMM d") – @trip.EndDate.ToString("MMM d, yyyy")</p>
                             @if (trip.Description is not null)
                             {
                                 <p class="trip-description">@trip.Description</p>

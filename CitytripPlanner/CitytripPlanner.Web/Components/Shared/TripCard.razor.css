@@ -1,70 +1,145 @@
 .citytrip-card {
     break-inside: avoid;
     margin-bottom: 1.5rem;
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
     background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .citytrip-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Image link ── */
+.card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.28) 100%);
+    pointer-events: none;
 }
 
 .citytrip-card img {
     width: 100%;
-    height: auto;
+    height: 200px;
+    object-fit: cover;
     display: block;
+    transition: transform 0.3s ease;
 }
 
+.citytrip-card:hover img {
+    transform: scale(1.03);
+}
+
+/* ── Card body ── */
 .card-body {
-    padding: 1rem;
+    padding: 1rem 1.125rem 0;
 }
 
 .city-name {
-    margin: 0 0 0.25rem;
-    font-size: 1.25rem;
-    font-weight: 600;
+    margin: 0 0 0.375rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
 }
 
 .destination {
-    margin: 0 0 0.25rem;
-    color: #666;
-    font-size: 0.9rem;
+    margin: 0 0 0.2rem;
+    color: #555;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .dates {
-    margin: 0 0 0.75rem;
-    color: #999;
-    font-size: 0.85rem;
+    margin: 0 0 0;
+    color: #888;
+    font-size: 0.825rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.location-icon,
+.calendar-icon {
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+/* ── Card footer ── */
+.card-footer {
+    margin-top: 0.875rem;
+    padding: 0.75rem 0 1rem;
+    border-top: 1px solid #f2f2f2;
 }
 
 .card-actions {
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 0.625rem;
 }
 
-.btn-like,
-.btn-enlist {
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 0.4rem 0.8rem;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
+/* ── Like button — circle ── */
+.btn-like {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid #e0e0e0;
     background: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    flex-shrink: 0;
 }
 
-.btn-like:hover,
-.btn-enlist:hover {
-    border-color: var(--color-orange);
+.btn-like:hover {
+    border-color: #e74c3c;
+    background: #fff5f5;
+    transform: scale(1.1);
 }
 
 .btn-like.liked {
     color: #e74c3c;
     border-color: #e74c3c;
+    background: #fff5f5;
+}
+
+/* ── Enlist button — pill ── */
+.btn-enlist {
+    flex: 1;
+    border: 1.5px solid var(--color-orange);
+    border-radius: 20px;
+    padding: 0.45rem 1rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: #fff;
+    color: var(--color-orange);
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    white-space: nowrap;
+}
+
+.btn-enlist:hover {
+    background: var(--color-orange);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(232, 119, 34, 0.3);
 }
 
 .btn-enlist.enlisted {
@@ -73,8 +148,9 @@
     border-color: var(--color-orange);
 }
 
+/* ── Disabled states ── */
 .btn-like:disabled,
 .btn-enlist:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
 }

@@ -1,0 +1,115 @@
+@page "/citytrips/{Id:int}"
+@using CitytripPlanner.Features.Citytrips.GetCitytripDetail
+@using MediatR
+@inject IMediator Mediator
+@rendermode InteractiveServer
+
+<PageTitle>@(_trip?.Title ?? "Citytrip")</PageTitle>
+
+@if (_loading)
+{
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading citytrip…</p>
+    </div>
+}
+else if (_trip is null)
+{
+    <div class="page-header">
+        <a href="/" class="btn-back-inline">← All citytrips</a>
+        <h1>Not found</h1>
+    </div>
+    <div class="not-found">
+        <p>This citytrip could not be found.</p>
+    </div>
+}
+else
+{
+    <div class="detail-hero">
+        <img src="@_trip.ImageUrl"
+             alt="@_trip.Title"
+             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27800%27 height=%27400%27%3E%3Crect fill=%27%23ddd%27 width=%27800%27 height=%27400%27/%3E%3Ctext fill=%27%23999%27 x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-size=%2724%27%3EImage unavailable%3C/text%3E%3C/svg%3E';" />
+        <div class="hero-overlay">
+            <a href="/" class="btn-back">← All citytrips</a>
+            <div class="hero-content">
+                <h1>@_trip.Title</h1>
+                <p class="hero-meta">
+                    <span>📍 @_trip.Destination</span>
+                    <span>📅 @_trip.StartDate.ToString("MMM d") – @_trip.EndDate.ToString("MMM d, yyyy")</span>
+                    @if (_trip.MaxParticipants.HasValue)
+                    {
+                        <span>👥 Max @_trip.MaxParticipants participants</span>
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-body">
+        @if (!string.IsNullOrWhiteSpace(_trip.Description))
+        {
+            <section class="detail-section">
+                <h2>About this trip</h2>
+                <p class="description">@_trip.Description</p>
+            </section>
+        }
+
+        @if (_trip.DayPlans is { Count: > 0 })
+        {
+            <section class="detail-section">
+                <h2>Itinerary</h2>
+                <div class="day-plans">
+                    @foreach (var day in _trip.DayPlans)
+                    {
+                        <div class="day-card">
+                            <div class="day-header">
+                                <span class="day-badge">Day @day.DayNumber</span>
+                                <span class="day-date">@day.Date.ToString("MMMM d, yyyy")</span>
+                                <span class="day-timeframe">@day.Timeframe</span>
+                            </div>
+                            <div class="attractions">
+                                @foreach (var attraction in day.Attractions)
+                                {
+                                    <div class="attraction-card">
+                                        <h4>@attraction.Name</h4>
+                                        <p class="attraction-description">@attraction.Description</p>
+                                        @if (!string.IsNullOrEmpty(attraction.WebsiteUrl))
+                                        {
+                                            <a href="@attraction.WebsiteUrl" target="_blank" rel="noopener" class="attraction-link">Visit website →</a>
+                                        }
+                                        @if (attraction.TransportationOptions.Count > 0)
+                                        {
+                                            <div class="transport">
+                                                <span class="transport-label">🚌 Getting there</span>
+                                                <ul>
+                                                    @foreach (var option in attraction.TransportationOptions)
+                                                    {
+                                                        <li>@option</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private CitytripDetailResponse? _trip;
+    private bool _loading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _trip = await Mediator.Send(new GetCitytripDetailQuery(Id));
+        _loading = false;
+    }
+}

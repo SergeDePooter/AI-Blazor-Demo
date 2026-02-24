@@ -1,27 +1,73 @@
 .top-nav {
     display: flex;
-    gap: 2rem;
-    padding: 1rem 2rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 64px;
     background: #fff;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #f0f0f0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    flex-shrink: 0;
+}
+
+.brand-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--color-orange);
+}
+
+.brand-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.01em;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .nav-item {
-    color: var(--color-orange-75);
+    color: #555;
     text-decoration: none;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 500;
-    padding-bottom: 0.25rem;
-    transition: all 0.2s ease;
+    padding: 0.4rem 0.875rem;
+    border-radius: 8px;
+    transition: color 0.15s ease, background 0.15s ease;
+    position: relative;
 }
 
 .nav-item:hover {
     color: var(--color-orange);
+    background: rgba(232, 119, 34, 0.06);
 }
 
 ::deep .nav-item.active {
     color: var(--color-orange);
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    text-decoration-thickness: 2px;
+    background: rgba(232, 119, 34, 0.08);
+}
+
+::deep .nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0.875rem;
+    right: 0.875rem;
+    height: 2px;
+    background: var(--color-orange);
+    border-radius: 2px 2px 0 0;
 }

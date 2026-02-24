@@ -12,16 +12,30 @@
 
 @if (_trips is null)
 {
-    <p>Loading citytrips...</p>
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading citytrips...</p>
+    </div>
 }
 else
 {
+    <div class="page-header">
+        <h1>Discover Citytrips</h1>
+        <p class="subtitle">Explore amazing city destinations</p>
+    </div>
+
     <div class="filter-area">
-        <input type="text"
-               class="filter-text"
-               placeholder="Search by title or destination..."
-               value="@_searchText"
-               @oninput="OnSearchTextChanged" />
+        <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                <path d="M20 20l-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input type="text"
+                   class="filter-text"
+                   placeholder="Search by title or destination..."
+                   value="@_searchText"
+                   @oninput="OnSearchTextChanged" />
+        </div>
 
         <div class="filter-dates">
             <label>

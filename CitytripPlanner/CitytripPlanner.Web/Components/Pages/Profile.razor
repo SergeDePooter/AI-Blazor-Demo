@@ -9,29 +9,34 @@
 
 <PageTitle>My Profile</PageTitle>
 
-<div class="profile-container">
+<div class="page-header">
     <h1>My Profile</h1>
+    <p class="subtitle">Manage your personal information</p>
+</div>
 
-    @if (_successMessage != null)
-    {
-        <div class="message success">@_successMessage</div>
-    }
+@if (_isLoading)
+{
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading profile…</p>
+    </div>
+}
+else
+{
+    <div class="profile-container">
+        @if (_successMessage != null)
+        {
+            <div class="message success">@_successMessage</div>
+        }
 
-    @if (_errorMessage != null)
-    {
-        <div class="message error">@_errorMessage</div>
-    }
+        @if (_errorMessage != null)
+        {
+            <div class="message error">@_errorMessage</div>
+        }
 
-    @if (_isLoading)
-    {
-        <p>Loading profile...</p>
-    }
-    else
-    {
         <div class="profile-content">
             @if (!_isEditing)
             {
-                <!-- View Mode -->
                 @if (_profile == null)
                 {
                     <div class="profile-empty">
@@ -43,22 +48,22 @@
                 {
                     <div class="profile-view">
                         <div class="profile-field">
-                            <label>Name:</label>
+                            <label>Name</label>
                             <div class="value">@_profile.Name</div>
                         </div>
 
                         <div class="profile-field">
-                            <label>First Name:</label>
+                            <label>First Name</label>
                             <div class="value">@_profile.Firstname</div>
                         </div>
 
                         <div class="profile-field">
-                            <label>Gender:</label>
+                            <label>Gender</label>
                             <div class="value">@(_profile.Gender ?? "(Not specified)")</div>
                         </div>
 
                         <div class="profile-field">
-                            <label>Country:</label>
+                            <label>Country</label>
                             <div class="value">@(_profile.Country ?? "(Not specified)")</div>
                         </div>
                     </div>
@@ -68,10 +73,9 @@
             }
             else
             {
-                <!-- Edit Mode -->
                 <div class="profile-edit">
                     <div class="form-field">
-                        <label for="name">Name: <span class="required">*</span></label>
+                        <label for="name">Name <span class="required">*</span></label>
                         <input id="name"
                                type="text"
                                @bind="_editName"
@@ -84,7 +88,7 @@
                     </div>
 
                     <div class="form-field">
-                        <label for="firstname">First Name: <span class="required">*</span></label>
+                        <label for="firstname">First Name <span class="required">*</span></label>
                         <input id="firstname"
                                type="text"
                                @bind="_editFirstname"
@@ -97,9 +101,9 @@
                     </div>
 
                     <div class="form-field">
-                        <label for="gender">Gender:</label>
+                        <label for="gender">Gender</label>
                         <select id="gender" @bind="_editGender">
-                            <option value="">-- Select Gender --</option>
+                            <option value="">— Select gender —</option>
                             @foreach (var option in GenderOptions.All)
                             {
                                 <option value="@option">@option</option>
@@ -112,9 +116,9 @@
                     </div>
 
                     <div class="form-field">
-                        <label for="country">Country:</label>
+                        <label for="country">Country</label>
                         <select id="country" @bind="_editCountry">
-                            <option value="">-- Select Country --</option>
+                            <option value="">— Select country —</option>
                             @foreach (var c in Countries.All)
                             {
                                 <option value="@c">@c</option>
@@ -128,15 +132,15 @@
 
                     <div class="button-group">
                         <button class="btn-primary" @onclick="SaveProfile" disabled="@_isSaving">
-                            @(_isSaving ? "Saving..." : "Save")
+                            @(_isSaving ? "Saving…" : "Save")
                         </button>
                         <button class="btn-secondary" @onclick="CancelEdit" disabled="@_isSaving">Cancel</button>
                     </div>
                 </div>
             }
         </div>
-    }
-</div>
+    </div>
+}
 
 @code {
     private UserProfileResponse? _profile;
@@ -144,13 +148,11 @@
     private bool _isEditing = false;
     private bool _isSaving = false;
 
-    // Edit state
     private string _editName = string.Empty;
     private string _editFirstname = string.Empty;
     private string? _editGender;
     private string? _editCountry;
 
-    // Messages
     private string? _successMessage;
     private string? _errorMessage;
     private Dictionary<string, string> _validationErrors = new();
@@ -168,7 +170,6 @@
         _errorMessage = null;
         _validationErrors.Clear();
 
-        // Initialize edit fields with current values or empty
         _editName = _profile?.Name ?? string.Empty;
         _editFirstname = _profile?.Firstname ?? string.Empty;
         _editGender = _profile?.Gender;
@@ -193,9 +194,7 @@
 
             await Mediator.Send(command);
 
-            // Reload profile to show updated data
             _profile = await Mediator.Send(new GetUserProfileQuery());
-
             _isEditing = false;
             _successMessage = "Profile updated successfully!";
         }
@@ -203,9 +202,7 @@
         {
             _errorMessage = "Please correct the errors below:";
             foreach (var error in ex.Errors)
-            {
                 _validationErrors[error.PropertyName] = error.ErrorMessage;
-            }
         }
         catch (Exception)
         {

@@ -1,24 +1,28 @@
 @using CitytripPlanner.Features.Citytrips.ListCitytrips
 
 <div class="citytrip-card">
-    <img src="@Trip.ImageUrl"
-         alt="@Trip.Title"
-         onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27600%27 height=%27400%27%3E%3Crect fill=%27%23ddd%27 width=%27600%27 height=%27400%27/%3E%3Ctext fill=%27%23999%27 x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-size=%2724%27%3EImage unavailable%3C/text%3E%3C/svg%3E';" />
+    <a href="/citytrips/@Trip.Id" class="card-link">
+        <img src="@Trip.ImageUrl"
+             alt="@Trip.Title"
+             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27600%27 height=%27400%27%3E%3Crect fill=%27%23ddd%27 width=%27600%27 height=%27400%27/%3E%3Ctext fill=%27%23999%27 x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-size=%2724%27%3EImage unavailable%3C/text%3E%3C/svg%3E';" />
+    </a>
     <div class="card-body">
         <h3 class="city-name">@Trip.Title</h3>
-        <p class="destination">@Trip.Destination</p>
-        <p class="dates">@Trip.StartDate.ToString("MMM d") – @Trip.EndDate.ToString("MMM d, yyyy")</p>
-        <div class="card-actions">
-            <button class="btn-like @(Trip.IsLiked ? "liked" : "")"
-                    @onclick="OnLikeClicked"
-                    disabled="@_isProcessing">
-                @(Trip.IsLiked ? "\u2665" : "\u2661")
-            </button>
-            <button class="btn-enlist @(Trip.IsEnlisted ? "enlisted" : "")"
-                    @onclick="OnEnlistClicked"
-                    disabled="@_isProcessing">
-                @(Trip.IsEnlisted ? "Enlisted" : "Enlist")
-            </button>
+        <p class="destination"><span class="location-icon">📍</span>@Trip.Destination</p>
+        <p class="dates"><span class="calendar-icon">📅</span>@Trip.StartDate.ToString("MMM d") – @Trip.EndDate.ToString("MMM d, yyyy")</p>
+        <div class="card-footer">
+            <div class="card-actions">
+                <button class="btn-like @(Trip.IsLiked ? "liked" : "")"
+                        @onclick="OnLikeClicked"
+                        disabled="@_isProcessing">
+                    @(Trip.IsLiked ? "\u2665" : "\u2661")
+                </button>
+                <button class="btn-enlist @(Trip.IsEnlisted ? "enlisted" : "")"
+                        @onclick="OnEnlistClicked"
+                        disabled="@_isProcessing">
+                    @(Trip.IsEnlisted ? "Enlisted" : "Enlist")
+                </button>
+            </div>
         </div>
     </div>
 </div>

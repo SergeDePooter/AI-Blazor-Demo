@@ -1,28 +1,103 @@
+/* ── Page header ── */
+.page-header {
+    padding: 2.5rem 2rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.page-header h1 {
+    margin: 0 0 0.25rem;
+    font-size: clamp(1.6rem, 3vw + 0.5rem, 2.4rem);
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.subtitle {
+    margin: 0;
+    font-size: 1rem;
+    color: #777;
+    font-weight: 400;
+}
+
+/* ── Loading state ── */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 5rem 2rem;
+    color: #888;
+    font-size: 0.95rem;
+}
+
+.spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #f0f0f0;
+    border-top-color: var(--color-orange);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Filter area ── */
 .filter-area {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e0e0e0;
+    gap: 0.875rem;
+    padding: 0.875rem 2rem;
+    background: #fafafa;
+    border-bottom: 1px solid #ebebeb;
     flex-wrap: wrap;
 }
 
-.filter-text {
+/* ── Search wrapper ── */
+.search-wrapper {
+    position: relative;
     flex: 1;
-    min-width: 200px;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 0.95rem;
+    min-width: 220px;
+    max-width: 420px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #aaa;
+    pointer-events: none;
+}
+
+.filter-text {
+    width: 100%;
+    padding: 0.55rem 0.75rem 0.55rem 2.25rem;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: #fff;
+    color: #1a1a1a;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.filter-text::placeholder {
+    color: #bbb;
 }
 
 .filter-text:focus {
     outline: none;
-    border-color: #4a90d9;
-    box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
+    border-color: var(--color-orange);
+    box-shadow: 0 0 0 3px rgba(232, 119, 34, 0.12);
 }
 
+/* ── Date filters ── */
 .filter-dates {
     display: flex;
     gap: 0.75rem;
@@ -32,50 +107,58 @@
 .filter-dates label {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
-    font-size: 0.9rem;
-    color: #555;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    color: #666;
+    font-weight: 500;
 }
 
 .filter-dates input[type="date"] {
-    padding: 0.4rem 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 0.9rem;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    background: #fff;
+    color: #1a1a1a;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .filter-dates input[type="date"]:focus {
     outline: none;
-    border-color: #4a90d9;
-    box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
+    border-color: var(--color-orange);
+    box-shadow: 0 0 0 3px rgba(232, 119, 34, 0.12);
 }
 
+/* ── Clear filters button ── */
 .btn-clear-filters {
-    padding: 0.45rem 0.9rem;
+    padding: 0.5rem 1rem;
     background: transparent;
-    border: 1px solid #999;
-    border-radius: 6px;
-    color: #555;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    color: #666;
     font-size: 0.85rem;
     cursor: pointer;
     white-space: nowrap;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 
 .btn-clear-filters:hover {
-    background: #e9ecef;
-    border-color: #666;
-    color: #333;
+    background: #fff0e6;
+    border-color: var(--color-orange);
+    color: var(--color-orange);
 }
 
+/* ── Masonry grid ── */
 .masonry-grid {
     columns: 3 280px;
     column-gap: 1.5rem;
-    padding: 1.5rem;
+    padding: 1.75rem 2rem;
 }
 
+/* ── Empty state ── */
 .empty-state {
     text-align: center;
-    padding: 4rem 2rem;
-    color: #666;
-    font-size: 1.1rem;
+    padding: 5rem 2rem;
+    color: #888;
+    font-size: 1rem;
 }

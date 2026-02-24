@@ -1,7 +1,10 @@
 @page "/citytrips/{Id:int}"
 @using CitytripPlanner.Features.Citytrips.GetCitytripDetail
+@using CitytripPlanner.Web.Components.Citytrips
 @using MediatR
 @inject IMediator Mediator
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 @rendermode InteractiveServer
 
 <PageTitle>@(_trip?.Title ?? "Citytrip")</PageTitle>
@@ -54,49 +57,21 @@ else
             </section>
         }
 
-        @if (_trip.DayPlans is { Count: > 0 })
-        {
-            <section class="detail-section">
-                <h2>Itinerary</h2>
-                <div class="day-plans">
-                    @foreach (var day in _trip.DayPlans)
-                    {
-                        <div class="day-card">
-                            <div class="day-header">
-                                <span class="day-badge">Day @day.DayNumber</span>
-                                <span class="day-date">@day.Date.ToString("MMMM d, yyyy")</span>
-                                <span class="day-timeframe">@day.Timeframe</span>
-                            </div>
-                            <div class="attractions">
-                                @foreach (var attraction in day.Attractions)
-                                {
-                                    <div class="attraction-card">
-                                        <h4>@attraction.Name</h4>
-                                        <p class="attraction-description">@attraction.Description</p>
-                                        @if (!string.IsNullOrEmpty(attraction.WebsiteUrl))
-                                        {
-                                            <a href="@attraction.WebsiteUrl" target="_blank" rel="noopener" class="attraction-link">Visit website →</a>
-                                        }
-                                        @if (attraction.TransportationOptions.Count > 0)
-                                        {
-                                            <div class="transport">
-                                                <span class="transport-label">🚌 Getting there</span>
-                                                <ul>
-                                                    @foreach (var option in attraction.TransportationOptions)
-                                                    {
-                                                        <li>@option</li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                        }
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            </section>
-        }
+        <div class="detail-layout">
+            <div class="schedule-column">
+                @if (_trip.DayPlans is { Count: > 0 })
+                {
+                    <DaySchedulePanel DayPlans="@_trip.DayPlans" OnDayVisible="HandleDayVisible" />
+                }
+                else
+                {
+                    <p class="empty-schedule">No day schedule available for this trip.</p>
+                }
+            </div>
+            <div class="map-column">
+                <TripMapSidebar Markers="@_activeMarkers" MapLoadFailed="@_mapLoadFailed" />
+            </div>
+        </div>
     </div>
 }
 
@@ -105,11 +80,53 @@ else
 
     private CitytripDetailResponse? _trip;
     private bool _loading = true;
+    private bool _mapLoadFailed = false;
+    private List<PlaceDetail> _activeMarkers = new();
+    private DotNetObjectReference<CitytripDetail>? _dotNetRef;
 
     protected override async Task OnParametersSetAsync()
     {
         _loading = true;
         _trip = await Mediator.Send(new GetCitytripDetailQuery(Id));
+        if (_trip?.DayPlans is { Count: > 0 })
+        {
+            UpdateMarkersForDay(_trip.DayPlans[0].DayNumber);
+        }
         _loading = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _trip?.DayPlans is { Count: > 0 })
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("tripMap.observeDaySections", _dotNetRef);
+        }
+    }
+
+    [JSInvokable]
+    public void OnDayChanged(int dayNumber)
+    {
+        UpdateMarkersForDay(dayNumber);
+        StateHasChanged();
+    }
+
+    private void HandleDayVisible(int dayNumber)
+    {
+        UpdateMarkersForDay(dayNumber);
+    }
+
+    private void UpdateMarkersForDay(int dayNumber)
+    {
+        var day = _trip?.DayPlans?.FirstOrDefault(d => d.DayNumber == dayNumber);
+        _activeMarkers = day?.Events
+            .Where(e => e.Place is not null)
+            .Select(e => e.Place!)
+            .ToList() ?? new();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _dotNetRef?.Dispose();
     }
 }

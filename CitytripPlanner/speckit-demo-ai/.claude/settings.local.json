@@ -16,7 +16,12 @@
       "Bash(ls:*)",
       "Bash(git -C C:/Projects/demo-speckit-ai rev-parse:*)",
       "Bash(test:*)",
-      "Bash(dotnet --version:*)"
+      "Bash(dotnet --version:*)",
+      "Bash(cd /c/Projects/demo-speckit-ai && powershell -File \"CitytripPlanner/speckit-demo-ai/.specify/scripts/powershell/update-agent-context.ps1\" -AgentType claude 2>&1)",
+      "Bash(cd /c/Projects/demo-speckit-ai && powershell -File \"CitytripPlanner/speckit-demo-ai/.specify/scripts/powershell/check-prerequisites.ps1\" -Json 2>&1)",
+      "Bash(tail:*)",
+      "Bash(grep:*)",
+      "mcp__playwright__browser_navigate"
     ]
   }
 }

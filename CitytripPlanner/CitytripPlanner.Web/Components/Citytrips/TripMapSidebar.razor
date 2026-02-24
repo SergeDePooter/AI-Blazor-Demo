@@ -1,0 +1,84 @@
+@using CitytripPlanner.Features.Citytrips.GetCitytripDetail
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="map-sidebar">
+    @if (MapLoadFailed || _initFailed)
+    {
+        <div class="map-fallback">
+            <div class="map-fallback-icon">🗺</div>
+            <p class="map-fallback-title">Map unavailable</p>
+            <p class="map-fallback-hint">Add a Google Maps API key to <code>appsettings.Development.json</code> to enable the map.</p>
+        </div>
+    }
+    else
+    {
+        <div id="trip-map-@_mapId" class="map-container"></div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<PlaceDetail> Markers { get; set; } = new();
+    [Parameter] public bool MapLoadFailed { get; set; }
+
+    private readonly string _mapId = Guid.NewGuid().ToString("N")[..8];
+    private bool _initialized;
+    private bool _initFailed;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !MapLoadFailed)
+        {
+            try
+            {
+                var markerData = Markers.Select(m => new { lat = m.Latitude, lng = m.Longitude, label = m.Name }).ToArray();
+                var success = await JS.InvokeAsync<bool>("tripMap.initMap", $"trip-map-{_mapId}", markerData);
+                if (success)
+                {
+                    _initialized = true;
+                }
+                else
+                {
+                    _initFailed = true;
+                    StateHasChanged();
+                }
+            }
+            catch
+            {
+                _initFailed = true;
+                StateHasChanged();
+            }
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_initialized)
+        {
+            try
+            {
+                var markerData = Markers.Select(m => new { lat = m.Latitude, lng = m.Longitude, label = m.Name }).ToArray();
+                await JS.InvokeVoidAsync("tripMap.updateMarkers", markerData);
+            }
+            catch
+            {
+                // Ignore JS errors on marker update
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_initialized)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("tripMap.destroyMap", $"trip-map-{_mapId}");
+            }
+            catch
+            {
+                // Ignore cleanup errors
+            }
+        }
+    }
+}

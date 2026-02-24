@@ -53,4 +53,25 @@ public class DayPlanTests
         var act = () => new DayPlan(1, new DateOnly(2026, 6, 1), "Morning", null!);
         act.Should().Throw<ArgumentNullException>().WithParameterName("attractions");
     }
+
+    [Fact]
+    public void Constructor_WithNoEvents_HasEmptyEventsList()
+    {
+        var dp = new DayPlan(1, new DateOnly(2026, 6, 1), "Morning", new List<Attraction>());
+
+        dp.Events.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Constructor_WithEvents_ExposesEvents()
+    {
+        var events = new List<ScheduledEvent>
+        {
+            new ScheduledEvent("Museum", "Louvre", new TimeOnly(14, 0))
+        };
+        var dp = new DayPlan(1, new DateOnly(2026, 6, 1), "Afternoon", new List<Attraction>(), events);
+
+        dp.Events.Should().HaveCount(1);
+        dp.Events[0].Name.Should().Be("Louvre");
+    }
 }

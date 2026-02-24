@@ -38,6 +38,25 @@ public class InMemoryCitytripRepository : ICitytripRepository
                             "Walking from Eiffel Tower (10 min)"
                         }
                     )
+                },
+                events: new List<ScheduledEvent>
+                {
+                    new ScheduledEvent(
+                        eventType: "landmark",
+                        name: "Eiffel Tower Visit",
+                        startTime: new TimeOnly(9, 0),
+                        endTime: new TimeOnly(11, 0),
+                        description: "Climb or take the elevator to the observation deck for panoramic views",
+                        place: new Place("Eiffel Tower", 48.8584, 2.2945, "Champ de Mars, 5 Av. Anatole France, Paris")
+                    ),
+                    new ScheduledEvent(
+                        eventType: "park",
+                        name: "Trocadéro Gardens Walk",
+                        startTime: new TimeOnly(11, 30),
+                        endTime: new TimeOnly(12, 30),
+                        description: "Stroll through the gardens with stunning Eiffel Tower views",
+                        place: new Place("Trocadéro Gardens", 48.8637, 2.2890, "Place du Trocadéro, Paris")
+                    )
                 }
             ),
             new DayPlan(
@@ -54,6 +73,25 @@ public class InMemoryCitytripRepository : ICitytripRepository
                         {
                             "Metro Line 1 to Palais Royal - Musée du Louvre"
                         }
+                    )
+                },
+                events: new List<ScheduledEvent>
+                {
+                    new ScheduledEvent(
+                        eventType: "museum",
+                        name: "Louvre Museum",
+                        startTime: new TimeOnly(14, 0),
+                        endTime: new TimeOnly(17, 0),
+                        description: "World's largest art museum — home to the Mona Lisa and Venus de Milo",
+                        place: new Place("Louvre Museum", 48.8606, 2.3376, "Rue de Rivoli, 75001 Paris")
+                    ),
+                    new ScheduledEvent(
+                        eventType: "market",
+                        name: "Marché Saint-Germain",
+                        startTime: new TimeOnly(17, 30),
+                        endTime: new TimeOnly(19, 0),
+                        description: "Covered market with fresh produce, cheese, and local specialties",
+                        place: new Place("Marché Saint-Germain", 48.8534, 2.3344, "4 Rue Lobineau, 75006 Paris")
                     )
                 }
             ),

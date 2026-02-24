@@ -1,0 +1,21 @@
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+
+@if (!string.IsNullOrWhiteSpace(_apiKey) && _apiKey != "YOUR_KEY_HERE")
+{
+    <script src="https://maps.googleapis.com/maps/api/js?key=@_apiKey&loading=async"></script>
+    <script src="js/trip-map.js"></script>
+}
+else
+{
+    <script src="js/trip-map.js"></script>
+}
+
+@code {
+    private string? _apiKey;
+
+    protected override void OnInitialized()
+    {
+        _apiKey = Configuration["GoogleMaps:ApiKey"];
+    }
+}

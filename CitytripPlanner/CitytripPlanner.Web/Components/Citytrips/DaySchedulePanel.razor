@@ -1,0 +1,31 @@
+@using CitytripPlanner.Features.Citytrips.GetCitytripDetail
+
+<div class="day-schedule-panel">
+    @foreach (var day in DayPlans)
+    {
+        <section class="day-section" data-day="@day.DayNumber">
+            <div class="day-header">
+                <span class="day-label">Day @day.DayNumber</span>
+                <span class="day-date">@day.Date.ToString("dddd, MMMM d")</span>
+            </div>
+            <div class="event-list">
+                @if (day.Events.Count == 0)
+                {
+                    <p class="no-events">No events scheduled for this day.</p>
+                }
+                else
+                {
+                    @foreach (var ev in day.Events)
+                    {
+                        <ScheduledEventCard Event="@ev" />
+                    }
+                }
+            </div>
+        </section>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public List<DayPlanDetail> DayPlans { get; set; } = new();
+    [Parameter] public EventCallback<int> OnDayVisible { get; set; }
+}

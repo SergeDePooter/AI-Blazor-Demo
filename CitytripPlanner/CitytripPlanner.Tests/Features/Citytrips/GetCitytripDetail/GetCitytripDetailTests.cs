@@ -123,6 +123,60 @@ public class GetCitytripDetailTests
     }
 
     [Fact]
+    public async Task Handle_TripWithEvents_ReturnsEventsInResponse()
+    {
+        // Arrange
+        var place = new Place("Eiffel Tower", 48.8584, 2.2945);
+        var ev = new ScheduledEvent("Landmark", "Eiffel Tower Visit", new TimeOnly(9, 0),
+            endTime: new TimeOnly(11, 0), place: place);
+        var dayPlan = new DayPlan(1, new DateOnly(2026, 6, 1), "Morning",
+            new List<Attraction>(), new List<ScheduledEvent> { ev });
+        var citytrip = new Citytrip(1, "Paris", "Paris, France", "",
+            new DateOnly(2026, 6, 1), new DateOnly(2026, 6, 2), "user",
+            DayPlans: new List<DayPlan> { dayPlan });
+
+        _repository.GetByIdWithItineraryAsync(1).Returns(citytrip);
+
+        // Act
+        var result = await _handler.Handle(new GetCitytripDetailQuery(1), CancellationToken.None);
+
+        // Assert
+        result.Should().NotBeNull();
+        var day = result!.DayPlans!.First();
+        day.Events.Should().HaveCount(1);
+        day.Events[0].EventType.Should().Be("Landmark");
+        day.Events[0].Place.Should().NotBeNull();
+        day.Events[0].Place!.Name.Should().Be("Eiffel Tower");
+        day.Events[0].Place!.Latitude.Should().Be(48.8584);
+    }
+
+    [Fact]
+    public async Task Handle_TripWithEvents_OrderedByStartTime()
+    {
+        // Arrange
+        var events = new List<ScheduledEvent>
+        {
+            new ScheduledEvent("Market", "Late Market", new TimeOnly(11, 0)),
+            new ScheduledEvent("Museum", "Early Museum", new TimeOnly(9, 0))
+        };
+        var dayPlan = new DayPlan(1, new DateOnly(2026, 6, 1), "Morning",
+            new List<Attraction>(), events);
+        var citytrip = new Citytrip(1, "Paris", "Paris, France", "",
+            new DateOnly(2026, 6, 1), new DateOnly(2026, 6, 2), "user",
+            DayPlans: new List<DayPlan> { dayPlan });
+
+        _repository.GetByIdWithItineraryAsync(1).Returns(citytrip);
+
+        // Act
+        var result = await _handler.Handle(new GetCitytripDetailQuery(1), CancellationToken.None);
+
+        // Assert
+        var day = result!.DayPlans!.First();
+        day.Events[0].Name.Should().Be("Early Museum");
+        day.Events[1].Name.Should().Be("Late Market");
+    }
+
+    [Fact]
     public async Task Handle_ValidId_MapsAllProperties()
     {
         // Arrange

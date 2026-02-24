@@ -1,0 +1,31 @@
+@using CitytripPlanner.Features.Citytrips.GetCitytripDetail
+
+<div class="event-card">
+    <div class="event-icon-row">
+        <span class="event-icon">@EventTypeIconMap.GetIcon(Event.EventType)</span>
+        <span class="event-type">@Event.EventType</span>
+    </div>
+    <div class="event-name">@Event.Name</div>
+    <div class="event-time">
+        @Event.StartTime.ToString("HH:mm")
+        @if (Event.EndTime.HasValue)
+        {
+            <span class="event-time-end"> – @Event.EndTime.Value.ToString("HH:mm")</span>
+        }
+    </div>
+    @if (Event.Place is not null)
+    {
+        <div class="event-location">
+            <span class="location-icon">📍</span>
+            <span class="location-name">@Event.Place.Name</span>
+        </div>
+    }
+    @if (!string.IsNullOrWhiteSpace(Event.Description))
+    {
+        <div class="event-description">@Event.Description</div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public ScheduledEventDetail Event { get; set; } = default!;
+}

@@ -31,7 +31,21 @@ public class GetCitytripDetailHandler(ICitytripRepository repository)
                         a.Name,
                         a.Description,
                         a.WebsiteUrl,
-                        a.TransportationOptions)).ToList()
+                        a.TransportationOptions)).ToList(),
+                    d.Events
+                        .OrderBy(e => e.StartTime)
+                        .Select(e => new ScheduledEventDetail(
+                            e.EventType,
+                            e.Name,
+                            e.StartTime,
+                            e.EndTime,
+                            e.Description,
+                            e.Place is null ? null : new PlaceDetail(
+                                e.Place.Name,
+                                e.Place.Latitude,
+                                e.Place.Longitude,
+                                e.Place.Address)
+                        )).ToList()
                 )).ToList()
         );
     }

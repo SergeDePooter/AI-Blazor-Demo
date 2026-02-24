@@ -9,12 +9,14 @@ public record DayPlan
     public DateOnly Date { get; init; }
     public string Timeframe { get; init; }
     public List<Attraction> Attractions { get; init; }
+    public List<ScheduledEvent> Events { get; init; }
 
     public DayPlan(
         int dayNumber,
         DateOnly date,
         string timeframe,
-        List<Attraction> attractions)
+        List<Attraction> attractions,
+        List<ScheduledEvent>? events = null)
     {
         if (dayNumber <= 0)
             throw new ArgumentException("DayNumber must be positive", nameof(dayNumber));
@@ -25,5 +27,6 @@ public record DayPlan
         Date = date;
         Timeframe = timeframe;
         Attractions = attractions;
+        Events = events ?? new List<ScheduledEvent>();
     }
 }

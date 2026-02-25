@@ -1,0 +1,53 @@
+@using CitytripPlanner.Web.Components.Citytrips
+
+<div class="event-editor-row">
+    <div class="event-fields">
+        <div class="form-group-inline">
+            <label>Type</label>
+            <input id="eventType" type="text" @bind="Event.EventType" placeholder="museum, restaurant…" />
+        </div>
+        <div class="form-group-inline">
+            <label>Name *</label>
+            <input id="eventName" type="text" @bind="Event.Name" placeholder="Event name" />
+        </div>
+        <div class="form-group-inline">
+            <label>Start Time *</label>
+            <input id="startTime" type="time"
+                   value="@Event.StartTime.ToString("HH:mm")"
+                   @onchange="e => { if (TimeOnly.TryParse(e.Value?.ToString(), out var t)) Event.StartTime = t; }" />
+        </div>
+        <div class="form-group-inline">
+            <label>End Time</label>
+            <input id="endTime" type="time"
+                   value="@(Event.EndTime?.ToString("HH:mm") ?? "")"
+                   @onchange="e => { var v = e.Value?.ToString(); Event.EndTime = !string.IsNullOrEmpty(v) && TimeOnly.TryParse(v, out var t) ? t : null; }" />
+            @if (Event.EndTime.HasValue && Event.EndTime.Value <= Event.StartTime)
+            {
+                <span class="field-error">End time must be after start time.</span>
+            }
+        </div>
+        <div class="form-group-inline form-group-wide">
+            <label>Description</label>
+            <input id="description" type="text" @bind="Event.Description" placeholder="Optional notes" />
+        </div>
+    </div>
+
+    <div class="event-actions">
+        @if (Event.Place is not null)
+        {
+            <span class="place-badge">📍 @Event.Place.Name</span>
+            <button class="btn-pick-map" @onclick="() => OnPickLocation.InvokeAsync()">Change</button>
+        }
+        else
+        {
+            <button id="btn-pick-map" class="btn-pick-map" @onclick="() => OnPickLocation.InvokeAsync()">📍 Pick on map</button>
+        }
+        <button id="btn-remove" class="btn-remove" @onclick="() => OnRemove.InvokeAsync()">✕</button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public ScheduledEventInputModel Event { get; set; } = new();
+    [Parameter] public EventCallback OnRemove { get; set; }
+    [Parameter] public EventCallback OnPickLocation { get; set; }
+}

@@ -1,0 +1,158 @@
+@page "/citytrips/create"
+@using CitytripPlanner.Features.Citytrips.CreateTrip
+@using CitytripPlanner.Features.Citytrips.Domain
+@using CitytripPlanner.Web.Components.Citytrips
+@using MediatR
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<PageTitle>Create Citytrip</PageTitle>
+
+<div class="create-wizard-page">
+    <div class="wizard-header">
+        <h1>Create Citytrip</h1>
+        <div class="step-indicator">
+            <span class="step @(_step == 1 ? "active" : _step > 1 ? "done" : "")">1. Basics</span>
+            <span class="step-separator">›</span>
+            <span class="step @(_step == 2 ? "active" : _step > 2 ? "done" : "")">2. Itinerary</span>
+            <span class="step-separator">›</span>
+            <span class="step @(_step == 3 ? "active" : "")">3. Review</span>
+        </div>
+    </div>
+
+    <div class="wizard-body">
+        @if (_step == 1)
+        {
+            <WizardStep1 OnNext="HandleStep1Next" />
+        }
+        else if (_step == 2)
+        {
+            <WizardStep2 DayPlans="_dayPlans" OnBack="HandleStep2Back" OnNext="HandleStep2Next" />
+        }
+        else if (_step == 3)
+        {
+            <WizardStep3
+                Model="_step1Model!"
+                DayPlans="_dayPlans"
+                OnBack="HandleStep3Back"
+                OnConfirm="HandleConfirm" />
+        }
+
+        @if (_errors.Count > 0)
+        {
+            <div class="wizard-errors">
+                @foreach (var error in _errors)
+                {
+                    <p>@error</p>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private int _step = 1;
+    private WizardStep1Model? _step1Model;
+    private List<DayPlanInputModel> _dayPlans = new();
+    private List<string> _errors = new();
+    private bool _isSaving;
+
+    private async Task HandleStep1Next(WizardStep1Model model)
+    {
+        var datesChanged = _step1Model is not null &&
+            (_step1Model.StartDate != model.StartDate || _step1Model.EndDate != model.EndDate);
+        var hadEvents = _dayPlans.Any(dp => dp.Events.Count > 0);
+
+        if (datesChanged && hadEvents)
+        {
+            var confirmed = await JS.InvokeAsync<bool>(
+                "confirm",
+                "Changing the dates will clear your event schedule. Continue?");
+
+            if (!confirmed) return;
+        }
+
+        if (_dayPlans.Count == 0 || datesChanged)
+        {
+            _dayPlans = GenerateDayPlans(model.StartDate, model.EndDate);
+        }
+
+        _step1Model = model;
+        _step = 2;
+    }
+
+    private void HandleStep2Back()
+    {
+        _step = 1;
+    }
+
+    private void HandleStep2Next()
+    {
+        _step = 3;
+    }
+
+    private void HandleStep3Back()
+    {
+        _step = 2;
+    }
+
+    private async Task HandleConfirm()
+    {
+        if (_isSaving || _step1Model is null) return;
+        _isSaving = true;
+        _errors.Clear();
+
+        try
+        {
+            var dayPlanInputs = _dayPlans.Select(dp => new DayPlanInput(
+                dp.DayNumber,
+                dp.Date,
+                dp.Events.Select(e => new ScheduledEventInput(
+                    e.EventType,
+                    e.Name,
+                    e.StartTime,
+                    e.EndTime,
+                    e.Description,
+                    e.Place is null ? null : new PlaceInput(e.Place.Name, e.Place.Latitude, e.Place.Longitude)))
+                .ToList()))
+            .ToList();
+
+            var command = new CreateTripCommand(
+                _step1Model.Title,
+                _step1Model.Destination,
+                _step1Model.StartDate,
+                _step1Model.EndDate,
+                CurrentUser.UserId,
+                _step1Model.Description,
+                _step1Model.MaxParticipants,
+                _step1Model.ImageUrl,
+                dayPlanInputs);
+
+            await Mediator.Send(command);
+            Navigation.NavigateTo("/my-citytrips");
+        }
+        catch (Exception ex)
+        {
+            _errors.Add(ex.Message);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private static List<DayPlanInputModel> GenerateDayPlans(DateOnly start, DateOnly end)
+    {
+        var days = (end.ToDateTime(TimeOnly.MinValue) - start.ToDateTime(TimeOnly.MinValue)).Days + 1;
+        return Enumerable.Range(0, days)
+            .Select(i => new DayPlanInputModel
+            {
+                DayNumber = i + 1,
+                Date = start.AddDays(i)
+            })
+            .ToList();
+    }
+}

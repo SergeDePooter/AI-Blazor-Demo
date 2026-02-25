@@ -1,0 +1,132 @@
+.wizard-step-3 {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.step-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+}
+
+.review-section {
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.review-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #444;
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.review-field {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.review-label {
+    font-weight: 600;
+    color: #666;
+    min-width: 120px;
+}
+
+.review-value {
+    color: #222;
+}
+
+.review-image {
+    max-width: 200px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.review-day {
+    margin-bottom: 16px;
+}
+
+.review-day-header {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.review-event {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.review-event-icon {
+    font-size: 1rem;
+}
+
+.review-event-name {
+    font-weight: 500;
+    flex: 1;
+}
+
+.review-event-time {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.review-event-place {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.review-empty {
+    color: #aaa;
+    font-size: 0.875rem;
+    font-style: italic;
+}
+
+.wizard-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+}
+
+.btn-primary {
+    background: #4f8af8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #3a73e0;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #4f8af8;
+    border: 1px solid #4f8af8;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #eef3ff;
+}

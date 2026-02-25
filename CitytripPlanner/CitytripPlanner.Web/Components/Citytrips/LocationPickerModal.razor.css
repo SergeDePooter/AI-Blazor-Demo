@@ -1,0 +1,101 @@
+.picker-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.picker-modal-content {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 640px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.picker-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary, #212529);
+    margin: 0;
+}
+
+.picker-map-container {
+    width: 100%;
+    height: 400px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border, #dee2e6);
+    background: var(--surface, #f8f9fa);
+}
+
+.map-fallback,
+.picker-fallback {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface, #f8f9fa);
+    border: 1px dashed var(--border, #dee2e6);
+    border-radius: 6px;
+    color: var(--text-muted, #6c757d);
+    font-size: 0.875rem;
+}
+
+.picker-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.picker-fields label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted, #6c757d);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.picker-fields input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border, #dee2e6);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.picker-fields input:focus {
+    outline: none;
+    border-color: var(--primary, #0d6efd);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+.picker-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+    .picker-modal-content {
+        padding: 1rem;
+        width: 95%;
+    }
+
+    .picker-map-container {
+        height: 260px;
+    }
+
+    .picker-actions {
+        flex-direction: column-reverse;
+    }
+}

@@ -10,6 +10,8 @@ Auto-generated from all feature plans. Last updated: 2026-02-07
 - In-memory (new InMemoryUserProfileRepository following existing patterns) (004-user-profile-page)
 - C# / .NET 10 + Blazor Server (built-in), MediatR 14.0.0 (existing), IJSRuntime (built-in Blazor, for Google Maps interop) (006-trip-day-schedule)
 - In-memory (extending existing `InMemoryCitytripRepository` seed data with `ScheduledEvent` and `Place` data) (006-trip-day-schedule)
+- C# / .NET 10 + Blazor Server (built-in), MediatR 14.x (existing), bUnit 2.5.3 (tests), xUnit (tests), FluentAssertions (tests) (007-create-citytrip-map)
+- In-memory (`InMemoryCitytripRepository` — no changes needed) (007-create-citytrip-map)
 
 - C# / .NET 10 + Blazor Server (built-in), MediatR (001-browse-citytrips)
 
@@ -30,9 +32,9 @@ tests/
 C# / .NET 10: Follow standard conventions
 
 ## Recent Changes
+- 007-create-citytrip-map: Added C# / .NET 10 + Blazor Server (built-in), MediatR 14.x (existing), bUnit 2.5.3 (tests), xUnit (tests), FluentAssertions (tests)
 - 006-trip-day-schedule: Added C# / .NET 10 + Blazor Server (built-in), MediatR 14.0.0 (existing), IJSRuntime (built-in Blazor, for Google Maps interop)
 - 005-citytrip-details: Added C# / .NET 10 + Blazor Server (built-in), MediatR 14.x (existing)
-- 004-user-profile-page: Added C# / .NET 10 + MediatR 14.0.0, Blazor Server (built-in)
 
 
 <!-- MANUAL ADDITIONS START -->

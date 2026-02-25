@@ -1,0 +1,98 @@
+@using CitytripPlanner.Web.Components.Citytrips
+
+<div class="wizard-step wizard-step-1">
+    <h2 class="step-title">Trip Details</h2>
+
+    <div class="form-group">
+        <label for="title">Title *</label>
+        <input id="title" type="text" @bind="_model.Title" maxlength="100" placeholder="Trip title" />
+        @if (_showErrors && string.IsNullOrWhiteSpace(_model.Title))
+        {
+            <span class="field-error">Title is required.</span>
+        }
+    </div>
+
+    <div class="form-group">
+        <label for="destination">Destination *</label>
+        <input id="destination" type="text" @bind="_model.Destination" maxlength="100" placeholder="City or location" />
+        @if (_showErrors && string.IsNullOrWhiteSpace(_model.Destination))
+        {
+            <span class="field-error">Destination is required.</span>
+        }
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="startDate">Start Date *</label>
+            <input id="startDate" type="date" @bind="_model.StartDate" @bind:format="yyyy-MM-dd" />
+            @if (_showErrors && _model.StartDate == default)
+            {
+                <span class="field-error">Start date is required.</span>
+            }
+        </div>
+        <div class="form-group">
+            <label for="endDate">End Date</label>
+            <input id="endDate" type="date" @bind="_model.EndDate" @bind:format="yyyy-MM-dd" />
+            @if (_showErrors && _model.EndDate < _model.StartDate)
+            {
+                <span class="field-error">End date must be on or after start date.</span>
+            }
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" @bind="_model.Description" rows="3" placeholder="Optional description"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="maxParticipants">Max Participants</label>
+        <input id="maxParticipants" type="number" @bind="_model.MaxParticipants" min="1" placeholder="No limit" />
+        @if (_showErrors && _model.MaxParticipants.HasValue && _model.MaxParticipants.Value < 1)
+        {
+            <span class="field-error">Max participants must be at least 1.</span>
+        }
+    </div>
+
+    <div class="form-group">
+        <label for="imageUrl">Image URL</label>
+        <input id="imageUrl" type="url" @bind="_model.ImageUrl" placeholder="https://example.com/image.jpg" />
+        @if (_showErrors && !string.IsNullOrEmpty(_model.ImageUrl) &&
+             !Uri.TryCreate(_model.ImageUrl, UriKind.Absolute, out _))
+        {
+            <span class="field-error">Image URL must be a valid URL.</span>
+        }
+    </div>
+
+    <div class="wizard-nav">
+        <button id="btn-next" class="btn-primary" @onclick="HandleNext">Next →</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback<WizardStep1Model> OnNext { get; set; }
+
+    private readonly WizardStep1Model _model = new();
+    private bool _showErrors;
+
+    private async Task HandleNext()
+    {
+        _showErrors = true;
+
+        if (!IsValid()) return;
+
+        await OnNext.InvokeAsync(_model);
+    }
+
+    private bool IsValid()
+    {
+        if (string.IsNullOrWhiteSpace(_model.Title)) return false;
+        if (string.IsNullOrWhiteSpace(_model.Destination)) return false;
+        if (_model.StartDate == default) return false;
+        if (_model.EndDate < _model.StartDate) return false;
+        if (_model.MaxParticipants.HasValue && _model.MaxParticipants.Value < 1) return false;
+        if (!string.IsNullOrEmpty(_model.ImageUrl) &&
+            !Uri.TryCreate(_model.ImageUrl, UriKind.Absolute, out _)) return false;
+        return true;
+    }
+}

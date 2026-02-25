@@ -1,0 +1,76 @@
+@using CitytripPlanner.Web.Components.Citytrips
+@using CitytripPlanner.Web
+
+<div class="wizard-step wizard-step-3">
+    <h2 class="step-title">Review Your Trip</h2>
+
+    <div class="review-section">
+        <h3 class="review-section-title">Trip Basics</h3>
+        <div class="review-field"><span class="review-label">Title</span><span class="review-value">@Model.Title</span></div>
+        <div class="review-field"><span class="review-label">Destination</span><span class="review-value">@Model.Destination</span></div>
+        <div class="review-field">
+            <span class="review-label">Dates</span>
+            <span class="review-value">@Model.StartDate.ToString("MMM d, yyyy") – @Model.EndDate.ToString("MMM d, yyyy")</span>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <div class="review-field"><span class="review-label">Description</span><span class="review-value">@Model.Description</span></div>
+        }
+        @if (Model.MaxParticipants.HasValue)
+        {
+            <div class="review-field"><span class="review-label">Max Participants</span><span class="review-value">@Model.MaxParticipants</span></div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+        {
+            <div class="review-field">
+                <span class="review-label">Image</span>
+                <img class="review-image" src="@Model.ImageUrl" alt="@Model.Title" />
+            </div>
+        }
+    </div>
+
+    @if (DayPlans.Count > 0)
+    {
+        <div class="review-section">
+            <h3 class="review-section-title">Itinerary</h3>
+            @foreach (var day in DayPlans)
+            {
+                <div class="review-day">
+                    <div class="review-day-header">Day @day.DayNumber · @day.Date.ToString("dddd, MMM d")</div>
+                    @if (day.Events.Count == 0)
+                    {
+                        <p class="review-empty">No events planned for this day.</p>
+                    }
+                    else
+                    {
+                        @foreach (var ev in day.Events.OrderBy(e => e.StartTime))
+                        {
+                            <div class="review-event">
+                                <span class="review-event-icon">@EventTypeIconMap.GetIcon(ev.EventType)</span>
+                                <span class="review-event-type">@ev.EventType</span>
+                                <span class="review-event-name">@ev.Name</span>
+                                <span class="review-event-time">@ev.StartTime.ToString("HH:mm")@(ev.EndTime.HasValue ? $" – {ev.EndTime.Value.ToString("HH:mm")}" : "")</span>
+                                @if (ev.Place is not null)
+                                {
+                                    <span class="review-event-place">📍 @ev.Place.Name</span>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    <div class="wizard-nav">
+        <button id="btn-back" class="btn-secondary" @onclick="() => OnBack.InvokeAsync()">← Back</button>
+        <button id="btn-confirm" class="btn-primary" @onclick="() => OnConfirm.InvokeAsync()">Confirm & Save</button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public WizardStep1Model Model { get; set; } = new();
+    [Parameter] public List<DayPlanInputModel> DayPlans { get; set; } = new();
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+}

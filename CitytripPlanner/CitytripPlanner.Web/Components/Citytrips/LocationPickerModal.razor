@@ -1,0 +1,122 @@
+@using CitytripPlanner.Web.Components.Citytrips
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="picker-modal-backdrop">
+    <div class="picker-modal-content">
+        <h3 class="picker-title">Pick a Location</h3>
+
+        @if (MapLoadFailed || _initFailed)
+        {
+            <div class="map-fallback picker-fallback">
+                <p>Map unavailable. Enter a place name manually.</p>
+            </div>
+        }
+        else
+        {
+            <div id="location-picker-@_pickerId" class="picker-map-container"></div>
+        }
+
+        <div class="picker-fields">
+            <label for="placeName">Place Name</label>
+            <input id="placeName" type="text" @bind="_placeName" placeholder="e.g. Eiffel Tower" />
+        </div>
+
+        <div class="picker-actions">
+            <button id="btn-cancel" class="btn-secondary" @onclick="HandleCancel">Cancel</button>
+            <button id="btn-confirm-location" class="btn-primary"
+                    @onclick="HandleConfirm"
+                    disabled="@(string.IsNullOrWhiteSpace(_placeName))">
+                Confirm Location
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public double? InitialLat { get; set; }
+    [Parameter] public double? InitialLng { get; set; }
+    [Parameter] public string? InitialName { get; set; }
+    [Parameter] public bool MapLoadFailed { get; set; }
+    [Parameter] public EventCallback<PlaceInputModel> OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private readonly string _pickerId = Guid.NewGuid().ToString("N")[..8];
+    private bool _initFailed;
+    private double _lat;
+    private double _lng;
+    private string _placeName = "";
+    private DotNetObjectReference<LocationPickerModal>? _dotNetRef;
+
+    protected override void OnInitialized()
+    {
+        _placeName = InitialName ?? "";
+        _lat = InitialLat ?? 0;
+        _lng = InitialLng ?? 0;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !MapLoadFailed)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+
+            try
+            {
+                var success = await JS.InvokeAsync<bool>(
+                    "locationPicker.initPicker",
+                    $"location-picker-{_pickerId}",
+                    _dotNetRef,
+                    InitialLat.HasValue ? (object)InitialLat.Value : null,
+                    InitialLng.HasValue ? (object)InitialLng.Value : null);
+
+                if (!success)
+                {
+                    _initFailed = true;
+                    StateHasChanged();
+                }
+            }
+            catch
+            {
+                _initFailed = true;
+                StateHasChanged();
+            }
+        }
+    }
+
+    [JSInvokable]
+    public void OnLocationPicked(double latitude, double longitude, string geocodedName)
+    {
+        _lat = latitude;
+        _lng = longitude;
+        if (!string.IsNullOrWhiteSpace(geocodedName))
+            _placeName = geocodedName;
+        StateHasChanged();
+    }
+
+    private async Task HandleConfirm()
+    {
+        var place = new PlaceInputModel
+        {
+            Name = _placeName,
+            Latitude = _lat,
+            Longitude = _lng
+        };
+        await OnConfirm.InvokeAsync(place);
+    }
+
+    private async Task HandleCancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_dotNetRef is not null)
+        {
+            try { await JS.InvokeVoidAsync("locationPicker.destroyPicker", $"location-picker-{_pickerId}"); }
+            catch { }
+            _dotNetRef.Dispose();
+        }
+    }
+}

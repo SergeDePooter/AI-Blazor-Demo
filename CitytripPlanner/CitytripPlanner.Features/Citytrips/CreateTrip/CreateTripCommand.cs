@@ -9,4 +9,6 @@ public record CreateTripCommand(
     DateOnly EndDate,
     string CreatorId,
     string? Description = null,
-    int? MaxParticipants = null) : IRequest<int>;
+    int? MaxParticipants = null,
+    string? ImageUrl = null,
+    List<DayPlanInput>? DayPlans = null) : IRequest<int>;

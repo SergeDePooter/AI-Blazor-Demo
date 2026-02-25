@@ -1,0 +1,72 @@
+.wizard-step-1 {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.step-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #444;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.15s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #4f8af8;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.field-error {
+    font-size: 0.8rem;
+    color: #e53e3e;
+}
+
+.wizard-nav {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.btn-primary {
+    background: #4f8af8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-primary:hover {
+    background: #3a73e0;
+}

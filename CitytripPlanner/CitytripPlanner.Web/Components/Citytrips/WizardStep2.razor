@@ -1,0 +1,103 @@
+@using CitytripPlanner.Web.Components.Citytrips
+
+<div class="wizard-step wizard-step-2">
+    <h2 class="step-title">Plan Your Itinerary</h2>
+    <p class="step-subtitle">Add events to each day of your trip.</p>
+
+    @foreach (var day in DayPlans)
+    {
+        <section class="day-section" data-day="@day.DayNumber">
+            <div class="day-header">
+                <span class="day-label">Day @day.DayNumber</span>
+                <span class="day-date">@day.Date.ToString("dddd, MMM d")</span>
+            </div>
+
+            @foreach (var ev in day.Events)
+            {
+                <EventEditorRow
+                    Event="ev"
+                    OnRemove="() => RemoveEvent(day, ev)"
+                    OnPickLocation="() => OpenPicker(ev)" />
+            }
+
+            <button class="btn-add-event" @onclick="() => AddEvent(day)">+ Add Event</button>
+        </section>
+    }
+
+    @if (_pickingForEvent is not null)
+    {
+        <LocationPickerModal
+            InitialLat="_pickingForEvent.Place?.Latitude"
+            InitialLng="_pickingForEvent.Place?.Longitude"
+            InitialName="_pickingForEvent.Place?.Name"
+            OnConfirm="HandlePickerConfirm"
+            OnCancel="() => _pickingForEvent = null" />
+    }
+
+    @if (_errors.Count > 0)
+    {
+        <div class="step-errors">
+            @foreach (var err in _errors)
+            {
+                <p>@err</p>
+            }
+        </div>
+    }
+
+    <div class="wizard-nav">
+        <button id="btn-back" class="btn-secondary" @onclick="() => OnBack.InvokeAsync()">← Back</button>
+        <button id="btn-next" class="btn-primary" @onclick="HandleNext">Next →</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<DayPlanInputModel> DayPlans { get; set; } = new();
+    [Parameter] public EventCallback OnBack { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+
+    private List<string> _errors = new();
+    private ScheduledEventInputModel? _pickingForEvent;
+
+    private void AddEvent(DayPlanInputModel day)
+    {
+        day.Events.Add(new ScheduledEventInputModel());
+    }
+
+    private void RemoveEvent(DayPlanInputModel day, ScheduledEventInputModel ev)
+    {
+        day.Events.Remove(ev);
+    }
+
+    private void OpenPicker(ScheduledEventInputModel ev)
+    {
+        _pickingForEvent = ev;
+    }
+
+    private void HandlePickerConfirm(PlaceInputModel place)
+    {
+        if (_pickingForEvent is not null)
+        {
+            _pickingForEvent.Place = place;
+            _pickingForEvent = null;
+        }
+    }
+
+    private async Task HandleNext()
+    {
+        _errors.Clear();
+        foreach (var day in DayPlans)
+        {
+            foreach (var ev in day.Events)
+            {
+                if (ev.EndTime.HasValue && ev.EndTime.Value <= ev.StartTime)
+                {
+                    _errors.Add($"Day {day.DayNumber}: End time must be after start time for \"{ev.Name}\".");
+                }
+            }
+        }
+
+        if (_errors.Count > 0) return;
+
+        await OnNext.InvokeAsync();
+    }
+}

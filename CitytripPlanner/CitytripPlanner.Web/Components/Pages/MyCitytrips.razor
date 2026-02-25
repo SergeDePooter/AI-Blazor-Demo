@@ -8,6 +8,7 @@
 @using MediatR
 @inject IMediator Mediator
 @inject ICurrentUserService CurrentUser
+@inject NavigationManager Navigation
 @rendermode InteractiveServer
 
 <PageTitle>My Citytrips</PageTitle>
@@ -189,8 +190,7 @@
 
     private void OpenCreateModal()
     {
-        _editingTrip = null;
-        _showFormModal = true;
+        Navigation.NavigateTo("/citytrips/create");
     }
 
     private void OpenEditModal(MyTripItem trip)

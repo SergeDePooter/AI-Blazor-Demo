@@ -79,6 +79,37 @@
     margin-top: 1rem;
 }
 
+.btn-primary {
+    background: #4f8af8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-primary:hover {
+    background: #3a73e0;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #4f8af8;
+    border: 1px solid #4f8af8;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #eef3ff;
+}
+
 @media (max-width: 768px) {
     .wizard-nav {
         flex-direction: column;

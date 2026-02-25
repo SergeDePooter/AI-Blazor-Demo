@@ -148,10 +148,11 @@
     color: var(--color-orange);
 }
 
-/* ── Masonry grid ── */
+/* ── Trip grid ── */
 .masonry-grid {
-    columns: 3 280px;
-    column-gap: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
     padding: 1.75rem 2rem;
 }
 

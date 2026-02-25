@@ -1,6 +1,4 @@
 .citytrip-card {
-    break-inside: avoid;
-    margin-bottom: 1.5rem;
     border-radius: 16px;
     overflow: hidden;
     background: #fff;

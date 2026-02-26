@@ -25,6 +25,22 @@ public class UpdateTripValidator
         if (command.MaxParticipants.HasValue && command.MaxParticipants.Value < 1)
             errors.Add("Max participants must be at least 1.");
 
+        if (!string.IsNullOrEmpty(command.ImageUrl) &&
+            !Uri.TryCreate(command.ImageUrl, UriKind.Absolute, out _))
+            errors.Add("Image URL must be a valid URL.");
+
+        if (command.DayPlans is not null)
+        {
+            foreach (var day in command.DayPlans)
+            {
+                foreach (var ev in day.Events)
+                {
+                    if (ev.EndTime.HasValue && ev.EndTime.Value <= ev.StartTime)
+                        errors.Add("End time must be after start time.");
+                }
+            }
+        }
+
         return errors;
     }
 }

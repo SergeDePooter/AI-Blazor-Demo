@@ -9,6 +9,7 @@ public record CitytripDetailResponse(
     DateOnly EndDate,
     string? Description,
     int? MaxParticipants,
+    string CreatorId,
     List<DayPlanDetail>? DayPlans);
 
 public record DayPlanDetail(

@@ -210,4 +210,27 @@ public class GetCitytripDetailTests
         result.Description.Should().Be("Beach and architecture");
         result.MaxParticipants.Should().Be(15);
     }
+
+    [Fact]
+    public async Task Handle_ValidId_MapsCreatorId()
+    {
+        // Arrange
+        var citytrip = new Citytrip(
+            Id: 1,
+            Title: "Paris",
+            Destination: "Paris, France",
+            ImageUrl: "",
+            StartDate: new DateOnly(2026, 6, 1),
+            EndDate: new DateOnly(2026, 6, 3),
+            CreatorId: "owner-user"
+        );
+        _repository.GetByIdWithItineraryAsync(1).Returns(citytrip);
+
+        // Act
+        var result = await _handler.Handle(new GetCitytripDetailQuery(1), CancellationToken.None);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.CreatorId.Should().Be("owner-user");
+    }
 }

@@ -24,7 +24,9 @@
       "mcp__playwright__browser_navigate",
       "Bash(cd \"C:\\\\Projects\\\\demo-speckit-ai\" && powershell -File \"CitytripPlanner/speckit-demo-ai/.specify/scripts/powershell/setup-plan.ps1\" -Json 2>&1)",
       "Bash(cd \"C:\\\\Projects\\\\demo-speckit-ai\" && powershell -File \"CitytripPlanner/speckit-demo-ai/.specify/scripts/powershell/update-agent-context.ps1\" -AgentType claude 2>&1)",
-      "Bash(cd \"C:\\\\Projects\\\\demo-speckit-ai\" && powershell -File \"CitytripPlanner/speckit-demo-ai/.specify/scripts/powershell/check-prerequisites.ps1\" -Json 2>&1)"
+      "Bash(cd \"C:\\\\Projects\\\\demo-speckit-ai\" && powershell -File \"CitytripPlanner/speckit-demo-ai/.specify/scripts/powershell/check-prerequisites.ps1\" -Json 2>&1)",
+      "Bash(head:*)",
+      "mcp__playwright__browser_click"
     ]
   }
 }

@@ -64,7 +64,7 @@
 
     <div class="wizard-nav">
         <button id="btn-back" class="btn-secondary" @onclick="() => OnBack.InvokeAsync()">← Back</button>
-        <button id="btn-confirm" class="btn-primary" @onclick="() => OnConfirm.InvokeAsync()">Confirm & Save</button>
+        <button id="btn-confirm" class="btn-primary" @onclick="() => OnConfirm.InvokeAsync()">@ConfirmLabel</button>
     </div>
 </div>
 
@@ -73,4 +73,5 @@
     [Parameter] public List<DayPlanInputModel> DayPlans { get; set; } = new();
     [Parameter] public EventCallback OnConfirm { get; set; }
     [Parameter] public EventCallback OnBack { get; set; }
+    [Parameter] public string ConfirmLabel { get; set; } = "Confirm & Save";
 }

@@ -3,7 +3,6 @@
 @using CitytripPlanner.Features.Citytrips.GetMyTrips
 @using CitytripPlanner.Features.Citytrips.GetEnlistedTrips
 @using CitytripPlanner.Features.Citytrips.CreateTrip
-@using CitytripPlanner.Features.Citytrips.UpdateTrip
 @using CitytripPlanner.Features.Citytrips.DeleteTrip
 @using MediatR
 @inject IMediator Mediator
@@ -135,14 +134,6 @@
     }
 </div>
 
-@if (_showFormModal)
-{
-    <CitytripPlanner.Web.Components.Shared.TripFormModal
-        Trip="_editingTrip"
-        OnSave="HandleFormSave"
-        OnCancel="CloseFormModal" />
-}
-
 @if (_showDeleteModal)
 {
     <CitytripPlanner.Web.Components.Shared.DeleteConfirmModal
@@ -157,9 +148,6 @@
     private ActiveSection _activeSection = ActiveSection.MyTrips;
     private List<MyTripItem>? _myTrips;
     private List<EnlistedTripItem>? _enlistedTrips;
-
-    private bool _showFormModal;
-    private MyTripItem? _editingTrip;
 
     private bool _showDeleteModal;
     private MyTripItem? _deletingTrip;
@@ -194,23 +182,7 @@
     }
 
     private void OpenEditModal(MyTripItem trip)
-    {
-        _editingTrip = trip;
-        _showFormModal = true;
-    }
-
-    private void CloseFormModal()
-    {
-        _showFormModal = false;
-        _editingTrip = null;
-    }
-
-    private async Task HandleFormSave()
-    {
-        _showFormModal = false;
-        _editingTrip = null;
-        await LoadMyTrips();
-    }
+        => Navigation.NavigateTo($"/citytrips/edit/{trip.Id}");
 
     private void OpenDeleteModal(MyTripItem trip)
     {

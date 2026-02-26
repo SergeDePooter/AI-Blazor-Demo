@@ -52,4 +52,37 @@ public class WizardStep1Tests : BunitContext
         received!.Title.Should().Be("Tokyo Adventure");
         received.Destination.Should().Be("Tokyo");
     }
+
+    [Fact]
+    public void WizardStep1_WithInitialModel_PreFillsAllFields()
+    {
+        var initial = new WizardStep1Model
+        {
+            Title = "Pre-filled Title",
+            Destination = "Pre-filled City",
+            StartDate = new DateOnly(2026, 8, 1),
+            EndDate = new DateOnly(2026, 8, 5),
+            Description = "Pre-filled description",
+            MaxParticipants = 12,
+            ImageUrl = "https://example.com/image.jpg"
+        };
+
+        var cut = Render<WizardStep1>(p => p.Add(c => c.InitialModel, initial));
+
+        cut.Find("input[id='title']").GetAttribute("value").Should().Be("Pre-filled Title");
+        cut.Find("input[id='destination']").GetAttribute("value").Should().Be("Pre-filled City");
+        cut.Find("input[id='startDate']").GetAttribute("value").Should().Be("2026-08-01");
+        cut.Find("input[id='endDate']").GetAttribute("value").Should().Be("2026-08-05");
+        cut.Find("input[id='maxParticipants']").GetAttribute("value").Should().Be("12");
+        cut.Find("input[id='imageUrl']").GetAttribute("value").Should().Be("https://example.com/image.jpg");
+    }
+
+    [Fact]
+    public void WizardStep1_WithNoInitialModel_RendersEmptyFields()
+    {
+        var cut = Render<WizardStep1>();
+
+        cut.Find("input[id='title']").GetAttribute("value").Should().BeNullOrEmpty();
+        cut.Find("input[id='destination']").GetAttribute("value").Should().BeNullOrEmpty();
+    }
 }

@@ -71,9 +71,22 @@
 
 @code {
     [Parameter] public EventCallback<WizardStep1Model> OnNext { get; set; }
+    [Parameter] public WizardStep1Model? InitialModel { get; set; }
 
     private readonly WizardStep1Model _model = new();
     private bool _showErrors;
+
+    protected override void OnInitialized()
+    {
+        if (InitialModel is null) return;
+        _model.Title           = InitialModel.Title;
+        _model.Destination     = InitialModel.Destination;
+        _model.StartDate       = InitialModel.StartDate;
+        _model.EndDate         = InitialModel.EndDate;
+        _model.Description     = InitialModel.Description;
+        _model.MaxParticipants = InitialModel.MaxParticipants;
+        _model.ImageUrl        = InitialModel.ImageUrl;
+    }
 
     private async Task HandleNext()
     {

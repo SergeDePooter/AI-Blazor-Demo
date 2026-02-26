@@ -1,3 +1,4 @@
+using CitytripPlanner.Features.Citytrips.CreateTrip;
 using CitytripPlanner.Features.Citytrips.Domain;
 using MediatR;
 
@@ -28,10 +29,28 @@ public class UpdateTripHandler(ICitytripRepository repository)
             StartDate = request.StartDate,
             EndDate = request.EndDate,
             Description = request.Description,
-            MaxParticipants = request.MaxParticipants
+            MaxParticipants = request.MaxParticipants,
+            ImageUrl = request.ImageUrl ?? existing.ImageUrl,
+            DayPlans = request.DayPlans is not null
+                ? MapDayPlans(request.DayPlans)
+                : existing.DayPlans
         };
 
         await repository.UpdateAsync(updated);
         return true;
     }
+
+    private static List<DayPlan> MapDayPlans(List<DayPlanInput> inputs)
+        => inputs.Select(dp => new DayPlan(
+            dp.DayNumber,
+            dp.Date,
+            timeframe: "",
+            attractions: [],
+            events: dp.Events
+                .OrderBy(e => e.StartTime)
+                .Select(e => new ScheduledEvent(
+                    e.EventType, e.Name, e.StartTime, e.EndTime, e.Description,
+                    e.Place is null ? null : new Place(e.Place.Name, e.Place.Latitude, e.Place.Longitude)))
+                .ToList()))
+        .ToList();
 }

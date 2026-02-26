@@ -21,6 +21,7 @@ public class GetCitytripDetailHandler(ICitytripRepository repository)
             trip.EndDate,
             trip.Description,
             trip.MaxParticipants,
+            trip.CreatorId,
             (trip.DayPlans ?? new List<DayPlan>())
                 .OrderBy(d => d.DayNumber)
                 .Select(d => new DayPlanDetail(

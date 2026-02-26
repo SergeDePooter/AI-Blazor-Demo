@@ -1,0 +1,234 @@
+@page "/citytrips/edit/{Id:int}"
+@using CitytripPlanner.Features.Citytrips.CreateTrip
+@using CitytripPlanner.Features.Citytrips.Domain
+@using CitytripPlanner.Features.Citytrips.GetCitytripDetail
+@using CitytripPlanner.Features.Citytrips.UpdateTrip
+@using CitytripPlanner.Web.Components.Citytrips
+@using MediatR
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<PageTitle>Edit Citytrip</PageTitle>
+
+@if (_notFound)
+{
+    <div class="error-state">
+        <p>Trip not found.</p>
+        <a href="/my-citytrips">← Back to My Citytrips</a>
+    </div>
+}
+else if (_unauthorized)
+{
+    <div class="error-state">
+        <p>You are not authorised to edit this trip.</p>
+        <a href="/my-citytrips">← Back to My Citytrips</a>
+    </div>
+}
+else if (_step1Model is null)
+{
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading…</p>
+    </div>
+}
+else
+{
+    <div class="create-wizard-page">
+        <div class="wizard-header">
+            <h1>Edit Citytrip</h1>
+            <div class="step-indicator">
+                <span class="step @(_step == 1 ? "active" : _step > 1 ? "done" : "")">1. Basics</span>
+                <span class="step-separator">›</span>
+                <span class="step @(_step == 2 ? "active" : _step > 2 ? "done" : "")">2. Itinerary</span>
+                <span class="step-separator">›</span>
+                <span class="step @(_step == 3 ? "active" : "")">3. Review</span>
+            </div>
+        </div>
+
+        <div class="wizard-body">
+            @if (_step == 1)
+            {
+                <WizardStep1 InitialModel="_step1Model" OnNext="HandleStep1Next" />
+            }
+            else if (_step == 2)
+            {
+                <WizardStep2 DayPlans="_dayPlans" OnBack="HandleStep2Back" OnNext="HandleStep2Next" />
+            }
+            else if (_step == 3)
+            {
+                <WizardStep3
+                    Model="_step1Model!"
+                    DayPlans="_dayPlans"
+                    OnBack="HandleStep3Back"
+                    OnConfirm="HandleConfirm"
+                    ConfirmLabel="Save Changes" />
+            }
+
+            @if (_errors.Count > 0)
+            {
+                <div class="wizard-errors">
+                    @foreach (var error in _errors)
+                    {
+                        <p>@error</p>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private int _step = 1;
+    private WizardStep1Model? _step1Model;
+    private List<DayPlanInputModel> _dayPlans = new();
+    private List<string> _errors = new();
+    private bool _isSaving;
+    private bool _notFound;
+    private bool _unauthorized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var detail = await Mediator.Send(new GetCitytripDetailQuery(Id));
+
+        if (detail is null)
+        {
+            _notFound = true;
+            return;
+        }
+
+        if (detail.CreatorId != CurrentUser.UserId)
+        {
+            _unauthorized = true;
+            return;
+        }
+
+        _step1Model = new WizardStep1Model
+        {
+            Title           = detail.Title,
+            Destination     = detail.Destination,
+            StartDate       = detail.StartDate,
+            EndDate         = detail.EndDate,
+            Description     = detail.Description,
+            MaxParticipants = detail.MaxParticipants,
+            ImageUrl        = detail.ImageUrl
+        };
+
+        _dayPlans = detail.DayPlans is { Count: > 0 }
+            ? detail.DayPlans.Select(dp => new DayPlanInputModel
+                {
+                    DayNumber = dp.DayNumber,
+                    Date      = dp.Date,
+                    Events    = dp.Events.Select(e => new ScheduledEventInputModel
+                    {
+                        EventType   = e.EventType,
+                        Name        = e.Name,
+                        StartTime   = e.StartTime,
+                        EndTime     = e.EndTime,
+                        Description = e.Description,
+                        Place       = e.Place is null ? null : new PlaceInputModel
+                        {
+                            Name      = e.Place.Name,
+                            Latitude  = e.Place.Latitude,
+                            Longitude = e.Place.Longitude
+                        }
+                    }).ToList()
+                }).ToList()
+            : PreserveByDayNumber([], detail.StartDate, detail.EndDate);
+    }
+
+    private async Task HandleStep1Next(WizardStep1Model model)
+    {
+        var datesChanged = _step1Model is not null &&
+            (_step1Model.StartDate != model.StartDate || _step1Model.EndDate != model.EndDate);
+        var hadEvents = _dayPlans.Any(dp => dp.Events.Count > 0);
+
+        if (datesChanged && hadEvents)
+        {
+            var confirmed = await JS.InvokeAsync<bool>(
+                "confirm",
+                "Changing the dates will adjust the schedule. Continue?");
+
+            if (!confirmed) return;
+        }
+
+        if (datesChanged || _dayPlans.Count == 0)
+        {
+            _dayPlans = PreserveByDayNumber(_dayPlans, model.StartDate, model.EndDate);
+        }
+
+        _step1Model = model;
+        _step = 2;
+    }
+
+    private void HandleStep2Back() => _step = 1;
+    private void HandleStep2Next() => _step = 3;
+    private void HandleStep3Back() => _step = 2;
+
+    private async Task HandleConfirm()
+    {
+        if (_isSaving || _step1Model is null) return;
+        _isSaving = true;
+        _errors.Clear();
+
+        try
+        {
+            var dayPlanInputs = _dayPlans.Select(dp => new DayPlanInput(
+                dp.DayNumber,
+                dp.Date,
+                dp.Events.Select(e => new ScheduledEventInput(
+                    e.EventType,
+                    e.Name,
+                    e.StartTime,
+                    e.EndTime,
+                    e.Description,
+                    e.Place is null ? null : new PlaceInput(e.Place.Name, e.Place.Latitude, e.Place.Longitude)))
+                .ToList()))
+            .ToList();
+
+            var command = new UpdateTripCommand(
+                TripId: Id,
+                Title: _step1Model.Title,
+                Destination: _step1Model.Destination,
+                StartDate: _step1Model.StartDate,
+                EndDate: _step1Model.EndDate,
+                UserId: CurrentUser.UserId,
+                Description: _step1Model.Description,
+                MaxParticipants: _step1Model.MaxParticipants,
+                ImageUrl: _step1Model.ImageUrl,
+                DayPlans: dayPlanInputs);
+
+            await Mediator.Send(command);
+            Navigation.NavigateTo("/my-citytrips");
+        }
+        catch (Exception ex)
+        {
+            _errors.Add(ex.Message);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private static List<DayPlanInputModel> PreserveByDayNumber(
+        List<DayPlanInputModel> oldPlans, DateOnly newStart, DateOnly newEnd)
+    {
+        var days = (newEnd.ToDateTime(TimeOnly.MinValue)
+                  - newStart.ToDateTime(TimeOnly.MinValue)).Days + 1;
+        return Enumerable.Range(0, days)
+            .Select(i => new DayPlanInputModel
+            {
+                DayNumber = i + 1,
+                Date      = newStart.AddDays(i),
+                Events    = i < oldPlans.Count
+                              ? oldPlans[i].Events
+                              : new List<ScheduledEventInputModel>()
+            })
+            .ToList();
+    }
+}

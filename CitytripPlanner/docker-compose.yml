@@ -1,0 +1,13 @@
+services:
+  citytripplanner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - GoogleMaps__ApiKey=${GOOGLE_API_KEY}
+    restart: unless-stopped

@@ -5,7 +5,16 @@
         </svg>
         <span class="brand-name">CityTrip Planner</span>
     </a>
-    <div class="nav-links">
+    <button class="nav-toggle"
+            @onclick="ToggleMenu"
+            aria-label="Toggle navigation"
+            aria-expanded="@(_menuOpen.ToString())"
+            aria-controls="nav-menu">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+    </button>
+    <div id="nav-menu" class="nav-links @(_menuOpen ? "nav-menu--open" : string.Empty)">
         <NavLink class="nav-item" href="/" Match="NavLinkMatch.All">
             Citytrips
         </NavLink>
@@ -17,3 +26,9 @@
         </NavLink>
     </div>
 </nav>
+
+@code {
+    private bool _menuOpen = false;
+
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+}

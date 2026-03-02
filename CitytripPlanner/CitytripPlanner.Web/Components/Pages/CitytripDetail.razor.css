@@ -149,15 +149,43 @@
     padding: 2rem 0;
 }
 
-/* ── Responsive: collapse map below schedule on small screens ── */
-@media (max-width: 768px) {
+/* ── Responsive: tablet — retain 2-column layout ── */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .detail-layout {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .map-column {
+        height: calc(100vh - 80px);
+    }
+
+    .detail-body {
+        padding: 1.5rem;
+    }
+}
+
+/* ── Responsive: mobile — collapse map below schedule ── */
+@media (max-width: 767px) {
     .detail-layout {
         grid-template-columns: 1fr;
     }
 
     .map-column {
         position: static;
-        height: 300px;
+        height: 260px;
+    }
+
+    .detail-body {
+        padding: 1rem;
+    }
+
+    .detail-hero {
+        height: 240px;
+    }
+
+    .page-header {
+        padding: 1.25rem 1rem 0.75rem;
     }
 }
 

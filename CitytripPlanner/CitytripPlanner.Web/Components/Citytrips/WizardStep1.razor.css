@@ -55,6 +55,31 @@
     margin-top: 24px;
 }
 
+@media (max-width: 767px) {
+    .wizard-step-1 {
+        max-width: 100%;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .wizard-nav {
+        justify-content: stretch;
+    }
+
+    .btn-primary {
+        width: 100%;
+        min-height: 44px;
+    }
+}
+
 .btn-primary {
     background: #4f8af8;
     color: white;

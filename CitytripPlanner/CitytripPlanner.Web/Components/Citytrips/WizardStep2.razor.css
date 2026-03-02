@@ -110,9 +110,19 @@
     background: #eef3ff;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+    .wizard-step-2 {
+        width: 100%;
+    }
+
     .wizard-nav {
         flex-direction: column;
         gap: 0.5rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        min-height: 44px;
     }
 }

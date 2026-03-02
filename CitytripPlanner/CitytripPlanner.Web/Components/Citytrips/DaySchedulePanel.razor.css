@@ -41,3 +41,18 @@
     font-style: italic;
     padding: 12px 0;
 }
+
+@media (max-width: 767px) {
+    .day-schedule-panel {
+        width: 100%;
+    }
+
+    .day-header {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .day-label {
+        white-space: normal;
+    }
+}

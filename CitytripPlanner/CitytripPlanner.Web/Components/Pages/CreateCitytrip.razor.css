@@ -61,13 +61,19 @@
     font-size: 0.9rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .create-wizard-page {
         padding: 16px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .wizard-body {
-        padding: 20px 16px;
+        padding: 16px;
+    }
+
+    .wizard-header h1 {
+        font-size: 1.4rem;
     }
 
     .step-indicator {

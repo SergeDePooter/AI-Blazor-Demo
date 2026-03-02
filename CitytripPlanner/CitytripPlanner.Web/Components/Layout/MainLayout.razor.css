@@ -10,6 +10,16 @@ main {
 
 .content {
     padding: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+@media (max-width: 767px) {
+    .page {
+        overflow-x: hidden;
+    }
 }
 
 #blazor-error-ui {

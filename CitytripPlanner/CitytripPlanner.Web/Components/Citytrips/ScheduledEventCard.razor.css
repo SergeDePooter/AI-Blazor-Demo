@@ -67,3 +67,18 @@
     margin-top: 6px;
     line-height: 1.4;
 }
+
+@media (max-width: 767px) {
+    .event-card {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .event-name,
+    .event-description,
+    .event-time,
+    .event-location {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+}

@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: citytripplanner-web
+  AZURE_WEBAPP_NAME: wa-demo-ai
   AZURE_WEBAPP_PROJECT_PATH: './CitytripPlanner/CitytripPlanner.Web/CitytripPlanner.Web.csproj'
   AZURE_WEBAPP_PACKAGE_PATH: './published-app'
   DOTNET_VERSION: '10.0.x'
